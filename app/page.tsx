@@ -34,6 +34,7 @@ export default function Home() {
   const [renameValue, setRenameValue] = useState('');
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [previewFile, setPreviewFile] = useState<DriveFile | null>(null);
+  const [hoveredFile, setHoveredFile] = useState<DriveFile | null>(null);
 
   const isLoading = status === 'loading';
   const isFolder = (file: DriveFile) => file.mimeType === 'application/vnd.google-apps.folder';
@@ -268,53 +269,131 @@ export default function Home() {
               </div>
             )}
 
-            {/* Files Grid */}
-            {loading ? (
-              <div className="flex items-center justify-center h-64">
-                <div className="animate-spin h-10 w-10 border-4 border-pink-500 border-t-transparent rounded-full"></div>
+            {/* Main Content Area with Side Preview */}
+            <div className="flex flex-col lg:flex-row gap-6">
+              <div className="flex-1">
+                {files.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-64 text-slate-400">
+                    <span className="text-5xl mb-4">📂</span>
+                    <p>This folder is empty</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {files.map((file) => (
+                      <div
+                        key={file.id}
+                        onMouseEnter={() => !isFolder(file) && setHoveredFile(file)}
+                        className="group bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 hover:border-slate-600 rounded-xl p-4 transition-all cursor-pointer relative overflow-hidden"
+                      >
+                        <div className="flex items-start gap-4">
+                          {/* Thumbnail / Icon */}
+                          <div className="w-16 h-16 rounded-lg bg-slate-900 flex items-center justify-center shrink-0 overflow-hidden border border-white/5 relative group-hover:border-pink-500/50 transition-colors">
+                            {file.thumbnailLink ? (
+                              <img
+                                src={file.thumbnailLink.replace('=s220', '=s400')}
+                                alt=""
+                                className="w-full h-full object-cover transition transform group-hover:scale-110"
+                              />
+                            ) : (
+                              <div className="text-3xl">
+                                {isFolder(file) ? '📁' : file.mimeType.includes('image') ? '🖼️' : file.mimeType.includes('video') ? '🎬' : file.mimeType.includes('audio') ? '🎵' : file.mimeType.includes('pdf') ? '📕' : file.mimeType.includes('sheet') || file.mimeType.includes('excel') ? '📊' : file.mimeType.includes('document') || file.mimeType.includes('word') ? '📝' : '📄'}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Content */}
+                          <div className="flex-1 min-w-0" onClick={() => isFolder(file) ? handleFolderClick(file) : setPreviewFile(file)}>
+                            <p className="font-medium truncate text-sm" title={file.name}>{file.name}</p>
+                            <p className="text-[10px] uppercase tracking-wider text-slate-500 mt-1 font-bold">
+                              {isFolder(file) ? 'Folder' : file.mimeType.split('/').pop()?.split('.').pop()}
+                            </p>
+                            <p className="text-xs text-slate-400 mt-0.5">
+                              {isFolder(file) ? '-' : formatSize(file.size)} • {formatDate(file.modifiedTime)}
+                            </p>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition translate-x-2 group-hover:translate-x-0">
+                            <button onClick={(e) => { e.stopPropagation(); setRenameItem(file); setRenameValue(file.name); }} className="p-1.5 bg-slate-900/80 hover:bg-slate-700 rounded-lg backdrop-blur-md border border-white/10" title="Rename">✏️</button>
+                            <button onClick={(e) => { e.stopPropagation(); handleDelete(file); }} className="p-1.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-400 rounded-lg backdrop-blur-md border border-rose-500/20" title="Delete">🗑️</button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            ) : files.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-64 text-slate-400">
-                <span className="text-5xl mb-4">📂</span>
-                <p>This folder is empty</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {files.map((file) => (
-                  <div
-                    key={file.id}
-                    className="group bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 hover:border-slate-600 rounded-xl p-4 transition-all cursor-pointer"
-                  >
-                    <div className="flex items-start gap-3">
-                      {/* Icon */}
-                      <div className="text-3xl shrink-0">
-                        {isFolder(file) ? '📁' : file.mimeType.includes('image') ? '🖼️' : file.mimeType.includes('video') ? '🎬' : file.mimeType.includes('audio') ? '🎵' : file.mimeType.includes('pdf') ? '📕' : file.mimeType.includes('sheet') || file.mimeType.includes('excel') ? '📊' : file.mimeType.includes('document') || file.mimeType.includes('word') ? '📝' : '📄'}
+
+              {/* Instant Preview Side Pane */}
+              <div className="hidden lg:block w-80 shrink-0">
+                <div className="sticky top-24 bg-slate-800/30 border border-white/5 rounded-2xl p-6 backdrop-blur-sm min-h-[400px] flex flex-col">
+                  {hoveredFile ? (
+                    <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
+                      <div className="aspect-square rounded-xl bg-black/40 overflow-hidden border border-white/10 mb-4 group relative">
+                        {hoveredFile.thumbnailLink ? (
+                          <img
+                            src={hoveredFile.thumbnailLink.replace('=s220', '=s800')}
+                            className="w-full h-full object-contain"
+                            alt=""
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-6xl opacity-30">
+                            📄
+                          </div>
+                        )}
+                        <button
+                          onClick={() => setPreviewFile(hoveredFile)}
+                          className="absolute inset-0 bg-pink-500/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center backdrop-blur-[2px]"
+                        >
+                          <span className="bg-white text-slate-900 px-4 py-2 rounded-full font-bold text-sm shadow-xl">
+                            Open Peek 👁️
+                          </span>
+                        </button>
+                      </div>
+                      <h4 className="font-bold text-lg leading-tight mb-2 line-clamp-2">{hoveredFile.name}</h4>
+                      <div className="space-y-4 text-sm text-slate-400">
+                        <div className="flex justify-between border-b border-white/5 pb-2">
+                          <span>Type</span>
+                          <span className="text-white truncate max-w-[150px]">{hoveredFile.mimeType}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-white/5 pb-2">
+                          <span>Size</span>
+                          <span className="text-white">{formatSize(hoveredFile.size)}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-white/5 pb-2">
+                          <span>Modified</span>
+                          <span className="text-white">{formatDate(hoveredFile.modifiedTime)}</span>
+                        </div>
                       </div>
 
-                      {/* Content */}
-                      <div className="flex-1 min-w-0" onClick={() => isFolder(file) ? handleFolderClick(file) : setPreviewFile(file)}>
-                        <p className="font-medium truncate" title={file.name}>{file.name}</p>
-                        <p className="text-xs text-slate-400 mt-1">
-                          {isFolder(file) ? 'Folder' : formatSize(file.size)} • {formatDate(file.modifiedTime)}
-                        </p>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
-                        {!isFolder(file) && (
-                          <button onClick={() => setPreviewFile(file)} className="p-1.5 hover:bg-slate-700 rounded-lg" title="Peek">👁️</button>
+                      <div className="mt-auto pt-6 flex flex-col gap-2">
+                        {hoveredFile.webContentLink && (
+                          <a
+                            href={hoveredFile.webContentLink}
+                            className="w-full py-3 bg-white text-slate-900 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-200 transition"
+                          >
+                            <span>⬇️</span> Download
+                          </a>
                         )}
-                        {!isFolder(file) && file.webContentLink && (
-                          <a href={file.webContentLink} className="p-1.5 hover:bg-slate-700 rounded-lg" title="Download">⬇️</a>
-                        )}
-                        <button onClick={() => { setRenameItem(file); setRenameValue(file.name); }} className="p-1.5 hover:bg-slate-700 rounded-lg" title="Rename">✏️</button>
-                        <button onClick={() => handleDelete(file)} className="p-1.5 hover:bg-rose-500/20 text-rose-400 rounded-lg" title="Delete">🗑️</button>
+                        <button
+                          onClick={() => setPreviewFile(hoveredFile)}
+                          className="w-full py-3 bg-slate-800 hover:bg-slate-700 rounded-xl font-medium transition"
+                        >
+                          Full Preview
+                        </button>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center text-center text-slate-500">
+                      <div className="w-16 h-16 rounded-full border-2 border-dashed border-slate-700 flex items-center justify-center mb-4">
+                        🔍
+                      </div>
+                      <p className="text-sm">Hover over a file<br />to see instant details</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
+            </div>
           </>
         )}
       </div>
