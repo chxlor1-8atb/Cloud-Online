@@ -7,15 +7,11 @@ export async function GET(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
 
-        if (!session) {
-            return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-        }
-
         // Get access token from session or stored token
-        let accessToken = (session as any).accessToken;
+        let accessToken = session ? (session as any).accessToken : null;
 
         if (!accessToken) {
-            // Try to get from stored token (for credentials login)
+            // Try to get from stored token (for both credentials and public users)
             accessToken = await getGoogleAccessToken();
         }
 

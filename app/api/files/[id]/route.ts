@@ -10,11 +10,7 @@ export async function DELETE(
     try {
         const session = await getServerSession(authOptions);
 
-        if (!session) {
-            return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-        }
-
-        let accessToken = (session as any).accessToken;
+        let accessToken = session ? (session as any).accessToken : null;
         if (!accessToken) {
             accessToken = await getGoogleAccessToken();
         }
@@ -61,11 +57,7 @@ export async function PATCH(
     try {
         const session = await getServerSession(authOptions);
 
-        if (!session) {
-            return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-        }
-
-        let accessToken = (session as any).accessToken;
+        let accessToken = session ? (session as any).accessToken : null;
         if (!accessToken) {
             accessToken = await getGoogleAccessToken();
         }
