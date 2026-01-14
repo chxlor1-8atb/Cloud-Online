@@ -2,6 +2,7 @@ import NextAuth, { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
+import { google } from 'googleapis';
 
 // Simple in-memory user store - in production, use a database
 const users = [
@@ -54,7 +55,7 @@ async function refreshGoogleToken(refreshToken: string): Promise<string | null> 
 
 // Get valid Google access token
 export async function getGoogleAccessToken(): Promise<string | null> {
-    // Check if we have a stored token from env (for credential login)
+    // 1. Check if we have a stored token from env (for credential login)
     const envRefreshToken = process.env.GOOGLE_REFRESH_TOKEN;
 
     if (storedGoogleToken) {
@@ -68,6 +69,24 @@ export async function getGoogleAccessToken(): Promise<string | null> {
 
     if (envRefreshToken) {
         return await refreshGoogleToken(envRefreshToken);
+    }
+
+    // 2. Try Service Account if available
+    const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
+    const privateKey = process.env.GOOGLE_PRIVATE_KEY;
+
+    if (clientEmail && privateKey) {
+        try {
+            const auth = new google.auth.JWT({
+                email: clientEmail,
+                key: privateKey.replace(/\\n/g, '\n'),
+                scopes: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/drive.file']
+            });
+            const token = await auth.getAccessToken();
+            return token.token || null;
+        } catch (error) {
+            console.error('Service Account Auth Error:', error);
+        }
     }
 
     return null;

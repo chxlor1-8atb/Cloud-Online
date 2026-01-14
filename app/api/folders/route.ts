@@ -27,9 +27,8 @@ export async function POST(req: NextRequest) {
             mimeType: 'application/vnd.google-apps.folder',
         };
 
-        if (parentId && parentId !== 'root') {
-            metadata.parents = [parentId];
-        }
+        const effectiveParentId = (!parentId || parentId === 'root') ? '1xO8zenJM5cIRhtGfkBmuPw9Szxs7mg-F' : parentId;
+        metadata.parents = [effectiveParentId];
 
         const response = await fetch(
             'https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,modifiedTime,webViewLink',

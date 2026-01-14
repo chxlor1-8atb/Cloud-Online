@@ -17,7 +17,11 @@ export async function POST(req: NextRequest) {
 
         const formData = await req.formData();
         const file = formData.get('file') as File;
-        const folderId = formData.get('folderId') as string || 'root';
+        let folderId = formData.get('folderId') as string || '1xO8zenJM5cIRhtGfkBmuPw9Szxs7mg-F';
+
+        if (folderId === 'root') {
+            folderId = '1xO8zenJM5cIRhtGfkBmuPw9Szxs7mg-F';
+        }
 
         if (!file) {
             return NextResponse.json({ error: 'No file provided' }, { status: 400 });

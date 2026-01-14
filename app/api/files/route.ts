@@ -20,7 +20,10 @@ export async function GET(req: NextRequest) {
         }
 
         const { searchParams } = new URL(req.url);
-        const folderId = searchParams.get('folderId') || 'root';
+        let folderId = searchParams.get('folderId') || '1xO8zenJM5cIRhtGfkBmuPw9Szxs7mg-F';
+        if (folderId === 'root') {
+            folderId = '1xO8zenJM5cIRhtGfkBmuPw9Szxs7mg-F';
+        }
         const pageToken = searchParams.get('pageToken') || '';
 
         // Build query - get files in specific folder

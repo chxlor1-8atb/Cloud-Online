@@ -24,8 +24,8 @@ export default function Home() {
   const { data: session, status } = useSession();
   const [files, setFiles] = useState<DriveFile[]>([]);
   const [loading, setLoading] = useState(false);
-  const [currentFolder, setCurrentFolder] = useState<string>('root');
-  const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbItem[]>([{ id: 'root', name: 'My Drive' }]);
+  const [currentFolder, setCurrentFolder] = useState<string>('1xO8zenJM5cIRhtGfkBmuPw9Szxs7mg-F');
+  const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbItem[]>([{ id: '1xO8zenJM5cIRhtGfkBmuPw9Szxs7mg-F', name: 'Cloud-Online' }]);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [showNewFolderModal, setShowNewFolderModal] = useState(false);
@@ -33,12 +33,12 @@ export default function Home() {
   const [renameItem, setRenameItem] = useState<DriveFile | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [previewFile, setPreviewFile] = useState<DriveFile | null>(null);
 
   const isLoading = status === 'loading';
   const isFolder = (file: DriveFile) => file.mimeType === 'application/vnd.google-apps.folder';
 
-  const fetchFiles = useCallback(async (folderId: string = 'root') => {
-    if (!session) return;
+  const fetchFiles = useCallback(async (folderId: string = '1xO8zenJM5cIRhtGfkBmuPw9Szxs7mg-F') => {
     setLoading(true);
     try {
       const res = await fetch(`/api/files?folderId=${folderId}`);
@@ -56,10 +56,8 @@ export default function Home() {
   }, [session]);
 
   useEffect(() => {
-    if (session) {
-      fetchFiles(currentFolder);
-    }
-  }, [session, currentFolder, fetchFiles]);
+    fetchFiles(currentFolder);
+  }, [currentFolder, fetchFiles]);
 
   const handleFolderClick = (folder: DriveFile) => {
     setCurrentFolder(folder.id);
@@ -180,19 +178,25 @@ export default function Home() {
           <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-violet-400">
             ☁️ Cloud Drive
           </h1>
-          {session && (
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                {session.user?.image && (
-                  <img src={session.user.image} alt="" className="w-8 h-8 rounded-full" />
-                )}
-                <span className="text-sm text-slate-300 hidden sm:block">{session.user?.email}</span>
-              </div>
-              <button onClick={() => signOut()} className="text-sm text-slate-400 hover:text-white px-3 py-1 rounded-lg hover:bg-white/10 transition">
-                Sign out
-              </button>
-            </div>
-          )}
+          <div className="flex items-center gap-4">
+            {session ? (
+              <>
+                <div className="flex items-center gap-2">
+                  {session.user?.image && (
+                    <img src={session.user.image} alt="" className="w-8 h-8 rounded-full" />
+                  )}
+                  <span className="text-sm text-slate-300 hidden sm:block">{session.user?.email}</span>
+                </div>
+                <button onClick={() => signOut()} className="text-sm text-slate-400 hover:text-white px-3 py-1 rounded-lg hover:bg-white/10 transition">
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <a href="/login" className="text-sm text-slate-400 hover:text-white px-3 py-1 rounded-lg hover:bg-white/10 transition">
+                Sign In
+              </a>
+            )}
+          </div>
         </div>
       </header>
 
@@ -200,21 +204,6 @@ export default function Home() {
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin h-10 w-10 border-4 border-pink-500 border-t-transparent rounded-full"></div>
-          </div>
-        ) : !session ? (
-          /* Redirect to Login */
-          <div className="flex flex-col items-center justify-center h-[60vh] gap-6">
-            <div className="text-center space-y-4">
-              <div className="text-6xl">☁️</div>
-              <h2 className="text-3xl font-bold">Welcome to Cloud Drive</h2>
-              <p className="text-slate-400">Manage your Google Drive files easily</p>
-            </div>
-            <a
-              href="/login"
-              className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-pink-500 to-violet-600 hover:from-pink-400 hover:to-violet-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all"
-            >
-              Sign In to Continue
-            </a>
           </div>
         ) : (
           <>
@@ -303,7 +292,7 @@ export default function Home() {
                       </div>
 
                       {/* Content */}
-                      <div className="flex-1 min-w-0" onClick={() => isFolder(file) ? handleFolderClick(file) : file.webViewLink && window.open(file.webViewLink, '_blank')}>
+                      <div className="flex-1 min-w-0" onClick={() => isFolder(file) ? handleFolderClick(file) : setPreviewFile(file)}>
                         <p className="font-medium truncate" title={file.name}>{file.name}</p>
                         <p className="text-xs text-slate-400 mt-1">
                           {isFolder(file) ? 'Folder' : formatSize(file.size)} • {formatDate(file.modifiedTime)}
@@ -312,6 +301,9 @@ export default function Home() {
 
                       {/* Actions */}
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+                        {!isFolder(file) && (
+                          <button onClick={() => setPreviewFile(file)} className="p-1.5 hover:bg-slate-700 rounded-lg" title="Peek">👁️</button>
+                        )}
                         {!isFolder(file) && file.webContentLink && (
                           <a href={file.webContentLink} className="p-1.5 hover:bg-slate-700 rounded-lg" title="Download">⬇️</a>
                         )}
@@ -371,6 +363,47 @@ export default function Home() {
               <button onClick={handleRename} className="px-6 py-2 bg-gradient-to-r from-pink-500 to-violet-600 rounded-xl hover:from-pink-400 hover:to-violet-500 transition">
                 Rename
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Peek Modal */}
+      {previewFile && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[100] p-4 scale-in">
+          <div className="bg-slate-900 rounded-2xl w-full max-w-5xl h-[85vh] border border-white/10 flex flex-col overflow-hidden shadow-2xl">
+            <div className="p-4 border-b border-white/10 flex items-center justify-between bg-slate-800/50">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">
+                  {previewFile.mimeType.includes('image') ? '🖼️' : previewFile.mimeType.includes('video') ? '🎬' : previewFile.mimeType.includes('audio') ? '🎵' : previewFile.mimeType.includes('pdf') ? '📕' : '📄'}
+                </span>
+                <div>
+                  <h3 className="font-bold truncate max-w-md">{previewFile.name}</h3>
+                  <p className="text-xs text-slate-400">{formatSize(previewFile.size)} • {formatDate(previewFile.modifiedTime)}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href={previewFile.webViewLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-sm transition"
+                >
+                  Open in Drive ↗
+                </a>
+                <button
+                  onClick={() => setPreviewFile(null)}
+                  className="p-2 hover:bg-rose-500/20 text-rose-400 rounded-xl transition rotate-hover"
+                >
+                  <span className="text-xl">✕</span>
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 bg-black relative">
+              <iframe
+                src={`https://drive.google.com/file/d/${previewFile.id}/preview`}
+                className="w-full h-full border-none"
+                allow="autoplay"
+              ></iframe>
             </div>
           </div>
         </div>
