@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# ☁️ Cloud Online (Web Drive App)
 
-First, run the development server:
+ระบบจัดการไฟล์บน Google Drive ผ่านเว็บแอปพลิเคชันที่สวยงามและใช้งานง่าย พัฒนาด้วยเทคโนโลยีสมัยใหม่ เพื่อให้คุณเข้าถึงและจัดการไฟล์ส่วนตัวได้รวดเร็วเพียงแค่ปลายนิ้ว
 
+## ✨ คุณสมบัติเด่น (Features)
+
+*   **🔐 ระบบความปลอดภัย**: รองรับการเข้าสู่ระบบด้วย Google Account (OAuth 2.0) และระบบ Username/Password (Credentials)
+*   **📂 จัดการไฟล์และโฟลเดอร์**:
+    *   ดูรายการไฟล์ทั้งหมดใน Google Drive ของคุณ
+    *   สร้างโฟลเดอร์ใหม่ (New Folder)
+    *   อัพโหลดไฟล์ (Upload File)
+    *   เปลี่ยนชื่อไฟล์และโฟลเดอร์ (Rename)
+    *   ลบไฟล์และโฟลเดอร์ (Delete)
+    *   ดาวน์โหลดไฟล์ (Download)
+*   **🧭 ระบบนำทาง**: มีระบบ Breadcrumbs ช่วยให้คุณย้ายไปมาในแต่ละโฟลเดอร์ได้อย่างสะดวก
+*   **🎨 ดีไซน์ระดับพรีเมียม**: อินเตอร์เฟสสวยงามด้วยสไตล์ Glassmorphism, Dark Mode และ Micro-animations ที่ลื่นไหล
+
+## 🛠️ เทคโนโลยีที่ใช้ (Tech Stack)
+
+*   **Framework**: [Next.js 16 (App Router)](https://nextjs.org/)
+*   **UI Library**: [React 19](https://reactjs.org/)
+*   **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+*   **Authentication**: [NextAuth.js](https://next-auth.js.org/)
+*   **API Integration**: [Google Drive API v3](https://developers.google.com/drive)
+*   **Language**: [TypeScript](https://www.typescriptlang.org/)
+
+## 🚀 เริ่มต้นใช้งาน (Getting Started)
+
+### 1. ติดตั้ง dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. ตั้งค่า Environment Variables
+สร้างไฟล์ `.env.local` ในโฟลเดอร์โปรเจกต์ และเพิ่มค่าต่อไปนี้:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+# Google OAuth Settings
+GOOGLE_CLIENT_ID=your_client_id
+GOOGLE_CLIENT_SECRET=your_client_secret
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# NextAuth Settings
+NEXTAUTH_SECRET=your_next_auth_secret
+NEXTAUTH_URL=http://localhost:3000
 
-## Learn More
+# Optional: สำหรับการรันแบบ Service
+GOOGLE_REFRESH_TOKEN=your_refresh_token
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 3. รันโปรเจกต์ในโหมด Development
+```bash
+npm run dev
+```
+เปิดเบราว์เซอร์ไปที่ [http://localhost:3000](http://localhost:3000)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📌 ข้อมูลการเข้าใช้งาน (Credentials)
+หากเลือกเข้าใช้ผ่านระบบ Username ของระบบเอง (ไม่ใช่ Google):
+*   **Username**: `admin`
+*   **Password**: `admin123`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📝 เกี่ยวกับโปรเจกต์
+โปรเจกต์นี้ถูกออกแบบมาเพื่อเป็นเครื่องมือช่วยในการจัดการไฟล์บนระบบ Cloud ของ Google ให้มีความสะดวกรวดเร็ว โดยเน้นไปที่ประสบการณ์การใช้งานที่ดีและการออกแบบที่ทันสมัย
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+© 2026 Cloud Online Team
