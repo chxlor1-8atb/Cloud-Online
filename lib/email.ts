@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend client lazily inside the function to avoid build errors if API key is missing
 
 // Email sender - use your verified domain or Resend's test domain
 const FROM_EMAIL = process.env.EMAIL_FROM || 'CloudSync <onboarding@resend.dev>';
@@ -23,6 +23,7 @@ export async function sendOTPEmail({ to, otp, userName }: SendOTPEmailParams): P
   }
 
   try {
+    const resend = new Resend(process.env.RESEND_API_KEY);
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: [to],
