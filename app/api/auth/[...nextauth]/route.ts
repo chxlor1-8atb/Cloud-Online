@@ -117,10 +117,10 @@ export const authOptions: NextAuthOptions = {
             },
         }),
         CredentialsProvider({
-            name: 'Username',
+            name: 'ชื่อผู้ใช้',
             credentials: {
-                username: { label: 'Username', type: 'text' },
-                password: { label: 'Password', type: 'password' },
+                username: { label: 'ชื่อผู้ใช้', type: 'text' },
+                password: { label: 'รหัสผ่าน', type: 'password' },
             },
             async authorize(credentials) {
                 if (!credentials?.username || !credentials?.password) {

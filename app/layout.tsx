@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cloud Drive - Upload to Google Drive",
-  description: "Securely upload your files to Google Drive",
+  title: "CloudSync - Premium Cloud Storage",
+  description: "Secure, fast, and elegant cloud storage powered by Google Drive.",
 };
 
 export default function RootLayout({

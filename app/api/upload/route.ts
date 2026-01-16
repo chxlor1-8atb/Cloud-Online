@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
             accessToken = await getGoogleAccessToken();
         }
         if (!accessToken) {
-            return NextResponse.json({ error: 'No Google access token. Admin needs to login with Google first.' }, { status: 401 });
+            return NextResponse.json({ error: 'ไม่พบ Google access token ผู้ดูแลระบบต้องเข้าสู่ระบบด้วย Google ก่อน' }, { status: 401 });
         }
 
         const formData = await req.formData();
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
         }
 
         if (!file) {
-            return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+            return NextResponse.json({ error: 'ไม่พบไฟล์ที่ต้องการอัปโหลด' }, { status: 400 });
         }
 
         // Convert File to ArrayBuffer then to base64
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
             const errorData = await response.json();
             console.error('Google Drive API Error:', errorData);
             return NextResponse.json(
-                { error: errorData.error?.message || 'Upload failed' },
+                { error: errorData.error?.message || 'อัปโหลดไม่สำเร็จ' },
                 { status: response.status }
             );
         }
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
     } catch (error: any) {
         console.error('Upload Error:', error);
         return NextResponse.json(
-            { error: error.message || 'Upload failed' },
+            { error: error.message || 'อัปโหลดไม่สำเร็จ' },
             { status: 500 }
         );
     }

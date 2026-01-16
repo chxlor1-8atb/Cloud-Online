@@ -15,7 +15,7 @@ export async function DELETE(
             accessToken = await getGoogleAccessToken();
         }
         if (!accessToken) {
-            return NextResponse.json({ error: 'No Google access token' }, { status: 401 });
+            return NextResponse.json({ error: 'ไม่พบ Google access token' }, { status: 401 });
         }
 
         const { id } = await params;
@@ -33,7 +33,7 @@ export async function DELETE(
         if (!response.ok && response.status !== 204) {
             const errorData = await response.json();
             return NextResponse.json(
-                { error: errorData.error?.message || 'Failed to delete' },
+                { error: errorData.error?.message || 'ลบไม่สำเร็จ' },
                 { status: response.status }
             );
         }
@@ -43,7 +43,7 @@ export async function DELETE(
     } catch (error: any) {
         console.error('Delete Error:', error);
         return NextResponse.json(
-            { error: error.message || 'Failed to delete' },
+            { error: error.message || 'ลบไม่สำเร็จ' },
             { status: 500 }
         );
     }
@@ -62,7 +62,7 @@ export async function PATCH(
             accessToken = await getGoogleAccessToken();
         }
         if (!accessToken) {
-            return NextResponse.json({ error: 'No Google access token' }, { status: 401 });
+            return NextResponse.json({ error: 'ไม่พบ Google access token' }, { status: 401 });
         }
 
         const { id } = await params;
@@ -70,7 +70,7 @@ export async function PATCH(
         const { name } = body;
 
         if (!name) {
-            return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+            return NextResponse.json({ error: 'กรุณาระบุชื่อ' }, { status: 400 });
         }
 
         const response = await fetch(
@@ -88,7 +88,7 @@ export async function PATCH(
         if (!response.ok) {
             const errorData = await response.json();
             return NextResponse.json(
-                { error: errorData.error?.message || 'Failed to rename' },
+                { error: errorData.error?.message || 'เปลี่ยนชื่อไม่สำเร็จ' },
                 { status: response.status }
             );
         }
@@ -99,7 +99,7 @@ export async function PATCH(
     } catch (error: any) {
         console.error('Rename Error:', error);
         return NextResponse.json(
-            { error: error.message || 'Failed to rename' },
+            { error: error.message || 'เปลี่ยนชื่อไม่สำเร็จ' },
             { status: 500 }
         );
     }

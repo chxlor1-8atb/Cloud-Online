@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
         }
 
         if (!accessToken) {
-            return NextResponse.json({ error: 'No Google access token. Admin needs to login with Google first.' }, { status: 401 });
+            return NextResponse.json({ error: 'ไม่พบ Google access token ผู้ดูแลระบบต้องเข้าสู่ระบบด้วย Google ก่อน' }, { status: 401 });
         }
 
         const { searchParams } = new URL(req.url);
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
         if (!response.ok) {
             const errorData = await response.json();
             return NextResponse.json(
-                { error: errorData.error?.message || 'Failed to list files' },
+                { error: errorData.error?.message || 'โหลดรายการไฟล์ไม่สำเร็จ' },
                 { status: response.status }
             );
         }
@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
     } catch (error: any) {
         console.error('List Files Error:', error);
         return NextResponse.json(
-            { error: error.message || 'Failed to list files' },
+            { error: error.message || 'โหลดรายการไฟล์ไม่สำเร็จ' },
             { status: 500 }
         );
     }

@@ -12,14 +12,14 @@ export async function POST(req: NextRequest) {
             accessToken = await getGoogleAccessToken();
         }
         if (!accessToken) {
-            return NextResponse.json({ error: 'No Google access token' }, { status: 401 });
+            return NextResponse.json({ error: 'ไม่พบ Google access token' }, { status: 401 });
         }
 
         const body = await req.json();
         const { name, parentId } = body;
 
         if (!name) {
-            return NextResponse.json({ error: 'Folder name is required' }, { status: 400 });
+            return NextResponse.json({ error: 'กรุณาระบุชื่อโฟลเดอร์' }, { status: 400 });
         }
 
         const metadata: any = {
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
         if (!response.ok) {
             const errorData = await response.json();
             return NextResponse.json(
-                { error: errorData.error?.message || 'Failed to create folder' },
+                { error: errorData.error?.message || 'สร้างโฟลเดอร์ไม่สำเร็จ' },
                 { status: response.status }
             );
         }
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     } catch (error: any) {
         console.error('Create Folder Error:', error);
         return NextResponse.json(
-            { error: error.message || 'Failed to create folder' },
+            { error: error.message || 'สร้างโฟลเดอร์ไม่สำเร็จ' },
             { status: 500 }
         );
     }
