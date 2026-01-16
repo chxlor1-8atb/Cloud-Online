@@ -1,18 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions, getGoogleAccessToken } from '../auth/[...nextauth]/route';
+import { getServiceAccountAccessToken, getDefaultFolderId } from '../../../lib/google-drive';
 
 // POST /api/folders - Create a new folder
 export async function POST(req: NextRequest) {
     try {
-        const session = await getServerSession(authOptions);
-
-        let accessToken = session ? (session as any).accessToken : null;
+        const accessToken = await getServiceAccountAccessToken();
         if (!accessToken) {
-            accessToken = await getGoogleAccessToken();
-        }
-        if (!accessToken) {
-            return NextResponse.json({ error: 'ไม่พบ Google access token' }, { status: 401 });
+            return NextResponse.json({
+                error: 'Service Account ยังไม่ได้ตั้งค่า'
+            }, { status: 500 });
         }
 
         const body = await req.json();
@@ -22,12 +18,13 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'กรุณาระบุชื่อโฟลเดอร์' }, { status: 400 });
         }
 
+        const defaultFolderId = getDefaultFolderId();
         const metadata: any = {
             name,
             mimeType: 'application/vnd.google-apps.folder',
         };
 
-        const effectiveParentId = (!parentId || parentId === 'root') ? '1xO8zenJM5cIRhtGfkBmuPw9Szxs7mg-F' : parentId;
+        const effectiveParentId = (!parentId || parentId === 'root') ? defaultFolderId : parentId;
         metadata.parents = [effectiveParentId];
 
         const response = await fetch(

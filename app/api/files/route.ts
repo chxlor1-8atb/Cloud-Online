@@ -1,29 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions, getGoogleAccessToken } from '../auth/[...nextauth]/route';
+import { getServiceAccountAccessToken, getDefaultFolderId } from '../../../lib/google-drive';
 
-// GET /api/files - List files in a folder
+// GET /api/files - List files in a folder (ไม่ต้อง login)
 export async function GET(req: NextRequest) {
     try {
-        const session = await getServerSession(authOptions);
-
-        // Get access token from session or stored token
-        let accessToken = session ? (session as any).accessToken : null;
-
+        const accessToken = await getServiceAccountAccessToken();
         if (!accessToken) {
-            // Try to get from stored token (for both credentials and public users)
-            accessToken = await getGoogleAccessToken();
-        }
-
-        if (!accessToken) {
-            return NextResponse.json({ error: 'ไม่พบ Google access token ผู้ดูแลระบบต้องเข้าสู่ระบบด้วย Google ก่อน' }, { status: 401 });
+            return NextResponse.json({
+                error: 'Service Account ยังไม่ได้ตั้งค่า กรุณาตั้งค่า environment variables'
+            }, { status: 500 });
         }
 
         const { searchParams } = new URL(req.url);
-        let folderId = searchParams.get('folderId') || '1xO8zenJM5cIRhtGfkBmuPw9Szxs7mg-F';
+        const defaultFolderId = getDefaultFolderId();
+        let folderId = searchParams.get('folderId') || defaultFolderId;
+
         if (folderId === 'root') {
-            folderId = '1xO8zenJM5cIRhtGfkBmuPw9Szxs7mg-F';
+            folderId = defaultFolderId;
         }
+
         const pageToken = searchParams.get('pageToken') || '';
 
         // Build query - get files in specific folder

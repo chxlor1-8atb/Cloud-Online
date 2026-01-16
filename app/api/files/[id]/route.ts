@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions, getGoogleAccessToken } from '../../auth/[...nextauth]/route';
+import { getServiceAccountAccessToken } from '../../../../lib/google-drive';
 
 // DELETE /api/files/[id] - Delete a file or folder
 export async function DELETE(
@@ -8,14 +7,11 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const session = await getServerSession(authOptions);
-
-        let accessToken = session ? (session as any).accessToken : null;
+        const accessToken = await getServiceAccountAccessToken();
         if (!accessToken) {
-            accessToken = await getGoogleAccessToken();
-        }
-        if (!accessToken) {
-            return NextResponse.json({ error: 'ไม่พบ Google access token' }, { status: 401 });
+            return NextResponse.json({
+                error: 'Service Account ยังไม่ได้ตั้งค่า'
+            }, { status: 500 });
         }
 
         const { id } = await params;
@@ -55,14 +51,11 @@ export async function PATCH(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const session = await getServerSession(authOptions);
-
-        let accessToken = session ? (session as any).accessToken : null;
+        const accessToken = await getServiceAccountAccessToken();
         if (!accessToken) {
-            accessToken = await getGoogleAccessToken();
-        }
-        if (!accessToken) {
-            return NextResponse.json({ error: 'ไม่พบ Google access token' }, { status: 401 });
+            return NextResponse.json({
+                error: 'Service Account ยังไม่ได้ตั้งค่า'
+            }, { status: 500 });
         }
 
         const { id } = await params;
