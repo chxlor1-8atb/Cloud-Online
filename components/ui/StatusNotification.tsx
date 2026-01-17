@@ -14,15 +14,20 @@ export function StatusNotification({ status, onClose }: StatusNotificationProps)
 
     return (
         <div className={cn(
-            "fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 z-[100] animate-bounce-in border",
+            "fixed bottom-24 lg:bottom-8 left-1/2 -translate-x-1/2 px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 z-[100] animate-slide-up backdrop-blur-md border",
             isSuccess
-                ? "bg-emerald-50 border-emerald-100 text-emerald-800"
-                : "bg-rose-50 border-rose-100 text-rose-800"
+                ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-300"
+                : "bg-rose-500/20 border-rose-500/30 text-rose-300"
         )}>
-            {isSuccess ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
-            <span className="font-bold text-sm tracking-tight">{status.message}</span>
-            <button onClick={onClose} className="ml-4 hover:opacity-70">
-                <X size={16} />
+            <div className={cn(
+                "w-8 h-8 rounded-lg flex items-center justify-center",
+                isSuccess ? "bg-emerald-500/20" : "bg-rose-500/20"
+            )}>
+                {isSuccess ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+            </div>
+            <span className="font-medium text-sm">{status.message}</span>
+            <button onClick={onClose} className="ml-2 p-1 hover:bg-white/10 rounded-lg transition-colors">
+                <X size={14} />
             </button>
         </div>
     );

@@ -1,5 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceAccountAccessToken, getDefaultFolderId } from '../../../lib/google-drive';
+import { findUserById, checkStorageQuota, updateUserStorageUsed } from '@/lib/users';
+import { cookies } from 'next/headers';
+
+// Helper to get current user ID from session
+async function getCurrentUserId(): Promise<string | null> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get('auth-session');
+    if (!session) return null;
+
+    try {
+        const sessionData = JSON.parse(Buffer.from(session.value, 'base64').toString());
+        return sessionData.userId || null;
+    } catch {
+        return null;
+    }
+}
 
 export async function POST(req: NextRequest) {
     try {
@@ -21,6 +37,18 @@ export async function POST(req: NextRequest) {
 
         if (!file) {
             return NextResponse.json({ error: 'ไม่พบไฟล์ที่ต้องการอัปโหลด' }, { status: 400 });
+        }
+
+        // Check storage quota for logged-in user
+        const userId = await getCurrentUserId();
+        if (userId) {
+            const quotaCheck = checkStorageQuota(userId, file.size);
+            if (!quotaCheck.allowed) {
+                return NextResponse.json(
+                    { error: quotaCheck.message || 'พื้นที่จัดเก็บเต็ม' },
+                    { status: 413 }
+                );
+            }
         }
 
         // Convert File to ArrayBuffer then to base64
@@ -75,6 +103,11 @@ export async function POST(req: NextRequest) {
         }
 
         const data = await response.json();
+
+        // Update user's storage used
+        if (userId) {
+            updateUserStorageUsed(userId, file.size);
+        }
 
         return NextResponse.json({
             success: true,

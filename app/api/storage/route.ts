@@ -1,39 +1,57 @@
 import { NextResponse } from 'next/server';
-import { getServiceAccountAccessToken } from '../../../lib/google-drive';
+import { cookies } from 'next/headers';
+import { findUserById, findUserByEmail } from '@/lib/users';
 
-// GET /api/storage - Get storage quota info
+// GET /api/storage - Get current user's storage quota info
 export async function GET() {
     try {
-        const accessToken = await getServiceAccountAccessToken();
-        if (!accessToken) {
-            return NextResponse.json({
-                error: 'Service Account ยังไม่ได้ตั้งค่า'
-            }, { status: 500 });
-        }
+        // Get current user from session
+        const cookieStore = await cookies();
+        const session = cookieStore.get('auth-session');
 
-        const response = await fetch(
-            'https://www.googleapis.com/drive/v3/about?fields=storageQuota,user',
-            {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            }
-        );
-
-        if (!response.ok) {
-            const errorData = await response.json();
+        if (!session) {
             return NextResponse.json(
-                { error: errorData.error?.message || 'ดึงข้อมูลไม่สำเร็จ' },
-                { status: response.status }
+                { error: 'กรุณาเข้าสู่ระบบ' },
+                { status: 401 }
             );
         }
 
-        const data = await response.json();
+        let user;
+        try {
+            const sessionData = JSON.parse(Buffer.from(session.value, 'base64').toString());
+            user = findUserById(sessionData.userId) || findUserByEmail(sessionData.email);
+        } catch {
+            return NextResponse.json(
+                { error: 'Session ไม่ถูกต้อง' },
+                { status: 401 }
+            );
+        }
 
-        // storageQuota contains: limit, usage, usageInDrive, usageInDriveTrash
+        if (!user) {
+            return NextResponse.json(
+                { error: 'ไม่พบผู้ใช้งาน' },
+                { status: 404 }
+            );
+        }
+
+        // Calculate storage info
+        const quotaBytes = user.storageQuotaGB * 1024 * 1024 * 1024;
+        const usedBytes = user.storageUsedBytes;
+        const usedPercentage = quotaBytes > 0 ? (usedBytes / quotaBytes) * 100 : 0;
+
         return NextResponse.json({
-            storageQuota: data.storageQuota,
-            user: data.user
+            storageQuota: {
+                limit: quotaBytes,
+                limitGB: user.storageQuotaGB,
+                usage: usedBytes,
+                usageGB: (usedBytes / (1024 * 1024 * 1024)).toFixed(2),
+                percentage: Math.min(usedPercentage, 100).toFixed(1),
+            },
+            user: {
+                name: user.name,
+                email: user.email,
+                role: user.role,
+            }
         });
 
     } catch (error: any) {

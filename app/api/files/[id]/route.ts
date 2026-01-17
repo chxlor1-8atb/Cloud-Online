@@ -1,5 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceAccountAccessToken } from '../../../../lib/google-drive';
+import { cookies } from 'next/headers';
+import { updateUserStorageUsed } from '@/lib/users';
+
+// Helper to get current user ID from session
+async function getCurrentUserId(): Promise<string | null> {
+    const cookieStore = await cookies();
+    const session = cookieStore.get('auth-session');
+    if (!session) return null;
+
+    try {
+        const sessionData = JSON.parse(Buffer.from(session.value, 'base64').toString());
+        return sessionData.userId || null;
+    } catch {
+        return null;
+    }
+}
 
 // DELETE /api/files/[id] - Delete a file or folder
 export async function DELETE(
@@ -15,6 +31,31 @@ export async function DELETE(
         }
 
         const { id } = await params;
+        const userId = await getCurrentUserId();
+
+        // Get file info first to know the size
+        let fileSize = 0;
+        if (userId) {
+            try {
+                const fileInfoResponse = await fetch(
+                    `https://www.googleapis.com/drive/v3/files/${id}?fields=size,mimeType`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }
+                );
+                if (fileInfoResponse.ok) {
+                    const fileInfo = await fileInfoResponse.json();
+                    // Only count size for non-folder items
+                    if (fileInfo.mimeType !== 'application/vnd.google-apps.folder') {
+                        fileSize = parseInt(fileInfo.size || '0', 10);
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to get file info before delete:', e);
+            }
+        }
 
         const response = await fetch(
             `https://www.googleapis.com/drive/v3/files/${id}`,
@@ -32,6 +73,11 @@ export async function DELETE(
                 { error: errorData.error?.message || 'ลบไม่สำเร็จ' },
                 { status: response.status }
             );
+        }
+
+        // Update user's storage used (decrease by file size)
+        if (userId && fileSize > 0) {
+            updateUserStorageUsed(userId, -fileSize);
         }
 
         return NextResponse.json({ success: true });

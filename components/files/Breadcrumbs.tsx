@@ -15,7 +15,7 @@ interface BreadcrumbsProps {
 
 export function Breadcrumbs({ items, loading, onNavigate, onRefresh, onNewFolder }: BreadcrumbsProps) {
     return (
-        <div className="flex items-center gap-2 text-sm text-slate-400 bg-white p-4 rounded-xl shadow-sm border border-slate-100 overflow-x-auto">
+        <div className="flex items-center gap-2 text-sm text-slate-400 glass-light p-3 lg:p-4 rounded-xl overflow-x-auto animate-slide-in">
             <BreadcrumbItems items={items} onNavigate={onNavigate} />
             <div className="ml-auto flex items-center gap-2">
                 <RefreshButton loading={loading} onRefresh={onRefresh} />
@@ -37,12 +37,12 @@ function BreadcrumbItems({ items, onNavigate }: BreadcrumbItemsProps) {
         <>
             {visibleItems.map((crumb, index) => (
                 <div key={crumb.id} className="flex items-center gap-2 shrink-0">
-                    {index > 0 && <ChevronRight size={14} />}
+                    {index > 0 && <ChevronRight size={14} className="text-slate-600" />}
                     <button
-                        onClick={() => onNavigate(index + 1)} // Offset by 1 to match original index
+                        onClick={() => onNavigate(index + 1)}
                         className={cn(
-                            "hover:text-primary transition font-semibold",
-                            index === visibleItems.length - 1 && "text-slate-800"
+                            "hover:text-primary transition font-medium px-2 py-1 rounded-lg hover:bg-white/5",
+                            index === visibleItems.length - 1 && "text-white"
                         )}
                     >
                         {crumb.name}
@@ -62,7 +62,7 @@ function RefreshButton({ loading, onRefresh }: RefreshButtonProps) {
     return (
         <button
             onClick={onRefresh}
-            className="p-1 text-slate-300 hover:text-primary transition-colors"
+            className="p-2 text-slate-500 hover:text-primary transition-colors rounded-lg hover:bg-white/5"
         >
             <RefreshCw size={16} className={cn(loading && "animate-spin")} />
         </button>
@@ -77,10 +77,10 @@ export function NewFolderButton({ onClick }: NewFolderButtonProps) {
     return (
         <button
             onClick={onClick}
-            className="flex items-center gap-2 px-6 py-2.5 bg-white border border-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all shadow-sm"
+            className="flex items-center gap-2 px-4 lg:px-5 py-2 lg:py-2.5 glass-light text-slate-300 font-medium rounded-xl hover:bg-white/10 transition-all border border-white/5 hover:border-white/10"
         >
-            <FolderPlus size={18} className="text-primary" />
-            <span>{BUTTONS.newFolder}</span>
+            <FolderPlus size={18} className="text-amber-400" />
+            <span className="hidden sm:inline">{BUTTONS.newFolder}</span>
         </button>
     );
 }

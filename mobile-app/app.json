@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "Cloud Online",
+    "slug": "cloud-online",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "cloudonline",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1e293b"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cloudonline.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#1e293b"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.cloudonline.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "apiUrl": "http://localhost:3000"
+    }
+  }
+}

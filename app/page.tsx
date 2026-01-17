@@ -61,6 +61,27 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showNewFolderModal, setShowNewFolderModal] = useState(false);
   const [renameItem, setRenameItem] = useState<DriveFile | null>(null);
+  const [storageQuota, setStorageQuota] = useState({ usedBytes: 0, quotaBytes: 5 * 1024 * 1024 * 1024, quotaGB: 5 });
+
+  // Fetch storage quota
+  useEffect(() => {
+    const fetchStorageQuota = async () => {
+      try {
+        const res = await fetch('/api/storage');
+        if (res.ok) {
+          const data = await res.json();
+          setStorageQuota({
+            usedBytes: data.storageQuota.usage || 0,
+            quotaBytes: data.storageQuota.limit || 5 * 1024 * 1024 * 1024,
+            quotaGB: data.storageQuota.limitGB || 5,
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch storage quota:', error);
+      }
+    };
+    fetchStorageQuota();
+  }, [files]); // Refetch when files change (after upload)
 
   // Load files on mount and folder change
   useEffect(() => {
@@ -110,24 +131,25 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen bg-[#F8FAFC]">
+    <div className="flex h-screen bg-[#0f172a] bg-pattern">
       {/* Sidebar */}
       <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-[#F8FAFC]">
+      <main className="flex-1 overflow-y-auto gradient-mesh pb-20 lg:pb-0">
         <Header
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           onFileSelect={selectFile}
         />
 
-        <div className="px-8 pb-12 animate-fade-in">
+        <div className="px-4 lg:px-8 pb-6 lg:pb-12 animate-fade-in">
           {activeTab === 'dashboard' ? (
             <DashboardView
               stats={stats}
               files={files}
               loading={loading}
+              storageQuota={storageQuota}
               onCategoryClick={handleTabChange}
               onRefresh={() => fetchFiles(currentFolder)}
               onRename={openRenameModal}
@@ -189,26 +211,34 @@ interface DashboardViewProps {
   stats: ReturnType<typeof calculateFileStats>;
   files: DriveFile[];
   loading: boolean;
+  storageQuota: { usedBytes: number; quotaBytes: number; quotaGB: number };
   onCategoryClick: (category: TabType) => void;
   onRefresh: () => void;
   onRename: (file: DriveFile) => void;
   onDelete: (file: DriveFile) => void;
 }
 
-function DashboardView({ stats, files, loading, onCategoryClick, onRefresh, onRename, onDelete }: DashboardViewProps) {
+function DashboardView({ stats, files, loading, storageQuota, onCategoryClick, onRefresh, onRename, onDelete }: DashboardViewProps) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-2 space-y-8">
-        <StorageCard usedBytes={stats.total} />
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
+      <div className="lg:col-span-2 space-y-4 lg:space-y-8">
+        <StorageCard
+          usedBytes={storageQuota.usedBytes}
+          quotaBytes={storageQuota.quotaBytes}
+          quotaGB={storageQuota.quotaGB}
+        />
         <CategoryGrid stats={stats} onCategoryClick={onCategoryClick} />
       </div>
-      <RecentFiles
-        files={files}
-        loading={loading}
-        onRefresh={onRefresh}
-        onRename={onRename}
-        onDelete={onDelete}
-      />
+      {/* Hidden on mobile, shown on tablet and up */}
+      <div className="hidden lg:block">
+        <RecentFiles
+          files={files}
+          loading={loading}
+          onRefresh={onRefresh}
+          onRename={onRename}
+          onDelete={onDelete}
+        />
+      </div>
     </div>
   );
 }
@@ -247,11 +277,11 @@ function FilesView({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-slate-800 mb-2">{tabLabels[activeTab]}</h2>
-          <p className="text-slate-500 font-medium">
+          <h2 className="text-xl lg:text-3xl font-bold text-slate-800 mb-1 lg:mb-2">{tabLabels[activeTab]}</h2>
+          <p className="text-sm lg:text-base text-slate-500 font-medium">
             {LABELS.total}: {files.length} {LABELS.items}
           </p>
         </div>
