@@ -1,6 +1,6 @@
 'use client';
 
-import { FileText, Image as ImageIcon, Video, MoreHorizontal } from 'lucide-react';
+import { FileText, Image as ImageIcon, Video, MoreHorizontal, ArrowUpRight } from 'lucide-react';
 import type { TabType, FileStats } from '@/lib/types';
 import { formatSize, cn } from '@/lib/utils';
 
@@ -10,10 +10,10 @@ interface CategoryGridProps {
 }
 
 const CATEGORIES = [
-    { id: 'documents' as TabType, label: 'เอกสาร', icon: FileText, gradient: 'from-rose-500 to-pink-500', glow: 'shadow-rose-500/30' },
-    { id: 'images' as TabType, label: 'รูปภาพ', icon: ImageIcon, gradient: 'from-blue-500 to-cyan-400', glow: 'shadow-blue-500/30' },
-    { id: 'media' as TabType, label: 'มีเดีย', icon: Video, gradient: 'from-emerald-500 to-teal-400', glow: 'shadow-emerald-500/30' },
-    { id: 'others' as TabType, label: 'อื่นๆ', icon: MoreHorizontal, gradient: 'from-violet-500 to-purple-500', glow: 'shadow-violet-500/30' },
+    { id: 'documents' as TabType, label: 'เอกสาร', icon: FileText, color: 'text-rose-400', bgColor: 'bg-rose-400/10' },
+    { id: 'images' as TabType, label: 'รูปภาพ', icon: ImageIcon, color: 'text-blue-400', bgColor: 'bg-blue-400/10' },
+    { id: 'media' as TabType, label: 'มีเดีย', icon: Video, color: 'text-green-400', bgColor: 'bg-green-400/10' },
+    { id: 'others' as TabType, label: 'อื่นๆ', icon: MoreHorizontal, color: 'text-purple-400', bgColor: 'bg-purple-400/10' },
 ];
 
 export function CategoryGrid({ stats, onCategoryClick }: CategoryGridProps) {
@@ -28,15 +28,14 @@ export function CategoryGrid({ stats, onCategoryClick }: CategoryGridProps) {
     };
 
     return (
-        <div className="grid grid-cols-2 gap-3 lg:gap-5">
+        <div className="grid grid-cols-2 gap-3 lg:gap-4">
             {CATEGORIES.map((category, index) => (
                 <CategoryCard
                     key={category.id}
                     {...category}
                     size={getCategorySize(category.id)}
-                    totalSize={stats.total}
                     onClick={() => onCategoryClick(category.id)}
-                    delay={index * 0.1}
+                    delay={index * 0.05}
                 />
             ))}
         </div>
@@ -46,54 +45,31 @@ export function CategoryGrid({ stats, onCategoryClick }: CategoryGridProps) {
 interface CategoryCardProps {
     id: TabType;
     label: string;
-    icon: React.ComponentType<{ size?: number }>;
-    gradient: string;
-    glow: string;
+    icon: React.ComponentType<{ size?: number; className?: string }>;
+    color: string;
+    bgColor: string;
     size: number;
-    totalSize: number;
     onClick: () => void;
     delay: number;
 }
 
-function CategoryCard({ label, icon: Icon, gradient, glow, size, totalSize, onClick, delay }: CategoryCardProps) {
-    const percentage = Math.min((size / Math.max(totalSize, 1)) * 100, 100);
-
+function CategoryCard({ label, icon: Icon, color, bgColor, size, onClick, delay }: CategoryCardProps) {
     return (
         <div
             onClick={onClick}
-            className="bg-slate-800/80 backdrop-blur-xl border border-white/10 rounded-xl lg:rounded-2xl p-4 lg:p-5 cursor-pointer flex flex-col gap-3 lg:gap-4 group animate-scale-in hover:bg-slate-700/80 hover:border-primary/30 hover:-translate-y-1 transition-all duration-300 shadow-lg"
-            style={{ animationDelay: `${delay}s` }}
+            className="card-interactive p-4 lg:p-5 flex flex-col gap-3 animate-slide-up opacity-0"
+            style={{ animationDelay: `${delay}s`, animationFillMode: 'forwards' }}
         >
             <div className="flex items-start justify-between">
-                <div className={cn(
-                    "w-10 h-10 lg:w-12 lg:h-12 rounded-lg lg:rounded-xl flex items-center justify-center text-white transition-all duration-300 group-hover:scale-110 shadow-lg bg-gradient-to-br",
-                    gradient,
-                    glow
-                )}>
-                    <Icon size={20} />
+                <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", bgColor)}>
+                    <Icon size={20} className={color} />
                 </div>
-                <span className="text-xs lg:text-sm font-bold text-slate-300">{formatSize(size)}</span>
+                <ArrowUpRight size={16} className="text-zinc-600" />
             </div>
-            <div className="space-y-2">
-                <h4 className="text-sm lg:text-base font-bold text-white">{label}</h4>
-                <ProgressBar percentage={percentage} gradient={gradient} />
+            <div>
+                <h4 className="text-sm font-semibold text-white mb-1">{label}</h4>
+                <p className="text-xs text-zinc-500">{formatSize(size)}</p>
             </div>
-        </div>
-    );
-}
-
-interface ProgressBarProps {
-    percentage: number;
-    gradient: string;
-}
-
-function ProgressBar({ percentage, gradient }: ProgressBarProps) {
-    return (
-        <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-            <div
-                className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-1000 ease-out", gradient)}
-                style={{ width: `${percentage}%` }}
-            />
         </div>
     );
 }

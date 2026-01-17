@@ -13,66 +13,39 @@ interface UploadModalProps {
 
 export function UploadModal({ file, uploading, onConfirm, onCancel }: UploadModalProps) {
     return (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-[110] flex items-center justify-center p-4">
-            <div className="glass rounded-2xl p-6 lg:p-8 w-full max-w-md shadow-2xl animate-scale-in border border-white/10 text-center">
-                <h3 className="text-xl lg:text-2xl font-bold text-white mb-6">{MODAL_TITLES.upload}</h3>
-                <FilePreview file={file} onRemove={onCancel} />
-                <ModalActions
-                    onCancel={onCancel}
-                    onConfirm={onConfirm}
-                    confirmLabel={uploading ? 'กำลังอัปโหลด...' : BUTTONS.confirm}
-                    disabled={uploading}
-                />
+        <div className="fixed inset-0 bg-black/80 z-[110] flex items-center justify-center p-4">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 w-full max-w-sm animate-fade-in">
+                <h3 className="text-lg font-semibold text-white mb-4">{MODAL_TITLES.upload}</h3>
+
+                <div className="bg-zinc-800 rounded-lg p-4 flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-zinc-700 rounded-lg flex items-center justify-center">
+                        <File size={20} className="text-zinc-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate">{file.name}</p>
+                        <p className="text-xs text-zinc-500">{formatSize(file.size)}</p>
+                    </div>
+                    <button onClick={onCancel} className="p-1 text-zinc-500 hover:text-white">
+                        <X size={16} />
+                    </button>
+                </div>
+
+                <div className="flex gap-3">
+                    <button
+                        onClick={onCancel}
+                        className="flex-1 py-2.5 text-sm font-medium text-zinc-400 hover:text-white border border-zinc-700 rounded-lg hover:bg-zinc-800 transition-colors"
+                    >
+                        {BUTTONS.cancel}
+                    </button>
+                    <button
+                        onClick={onConfirm}
+                        disabled={uploading}
+                        className="flex-1 py-2.5 text-sm font-medium bg-white text-black rounded-lg hover:bg-zinc-200 transition-colors disabled:opacity-50"
+                    >
+                        {uploading ? 'กำลังอัปโหลด...' : BUTTONS.confirm}
+                    </button>
+                </div>
             </div>
-        </div>
-    );
-}
-
-interface FilePreviewProps {
-    file: File;
-    onRemove: () => void;
-}
-
-function FilePreview({ file, onRemove }: FilePreviewProps) {
-    return (
-        <div className="glass-light rounded-xl p-4 flex items-center gap-4 mb-6 overflow-hidden">
-            <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-xl flex items-center justify-center text-primary shrink-0">
-                <File size={28} />
-            </div>
-            <div className="flex-1 min-w-0 text-left">
-                <p className="font-bold text-white truncate">{file.name}</p>
-                <p className="text-sm text-slate-400">{formatSize(file.size)}</p>
-            </div>
-            <button onClick={onRemove} className="p-2 text-slate-400 hover:text-white transition-colors">
-                <X size={18} />
-            </button>
-        </div>
-    );
-}
-
-interface ModalActionsProps {
-    onCancel: () => void;
-    onConfirm: () => void;
-    confirmLabel: string;
-    disabled?: boolean;
-}
-
-function ModalActions({ onCancel, onConfirm, confirmLabel, disabled }: ModalActionsProps) {
-    return (
-        <div className="flex gap-3">
-            <button
-                onClick={onCancel}
-                className="flex-1 py-3.5 font-bold text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
-            >
-                {BUTTONS.cancel}
-            </button>
-            <button
-                onClick={onConfirm}
-                disabled={disabled}
-                className="flex-1 py-3.5 gradient-primary text-white font-bold rounded-xl shadow-lg shadow-primary/30 transition-all active:scale-95 disabled:opacity-50 hover:shadow-primary/50"
-            >
-                {confirmLabel}
-            </button>
         </div>
     );
 }

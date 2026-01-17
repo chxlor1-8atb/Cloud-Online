@@ -16,32 +16,18 @@ interface RecentFilesProps {
 
 export function RecentFiles({ files, loading, onRefresh, onRename, onDelete }: RecentFilesProps) {
     return (
-        <div className="bg-slate-800/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col min-h-[400px] animate-slide-up shadow-lg">
-            <RecentFilesHeader loading={loading} onRefresh={onRefresh} />
-            <RecentFilesList
-                files={files}
-                onRename={onRename}
-                onDelete={onDelete}
-            />
-        </div>
-    );
-}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col min-h-[360px] animate-slide-up">
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-white">{LABELS.recentFiles}</h3>
+                <button
+                    onClick={onRefresh}
+                    className="p-1.5 text-zinc-500 hover:text-white transition-colors rounded-md hover:bg-zinc-800"
+                >
+                    <RefreshCw size={14} className={cn(loading && "animate-spin")} />
+                </button>
+            </div>
 
-interface RecentFilesHeaderProps {
-    loading: boolean;
-    onRefresh: () => void;
-}
-
-function RecentFilesHeader({ loading, onRefresh }: RecentFilesHeaderProps) {
-    return (
-        <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-white">{LABELS.recentFiles}</h3>
-            <button
-                onClick={onRefresh}
-                className="p-2 text-slate-400 hover:text-primary transition-colors rounded-lg hover:bg-white/5"
-            >
-                <RefreshCw size={18} className={cn(loading && "animate-spin")} />
-            </button>
+            <RecentFilesList files={files} onRename={onRename} onDelete={onDelete} />
         </div>
     );
 }
@@ -56,11 +42,16 @@ function RecentFilesList({ files, onRename, onDelete }: RecentFilesListProps) {
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
     if (files.length === 0) {
-        return <EmptyState />;
+        return (
+            <div className="flex-1 flex flex-col items-center justify-center text-zinc-600 space-y-2">
+                <File size={24} />
+                <p className="text-sm">ยังไม่มีไฟล์</p>
+            </div>
+        );
     }
 
     return (
-        <div className="space-y-2 flex-1">
+        <div className="space-y-1 flex-1">
             {files.slice(0, 6).map((file, index) => (
                 <FileRow
                     key={file.id}
@@ -69,20 +60,9 @@ function RecentFilesList({ files, onRename, onDelete }: RecentFilesListProps) {
                     onToggleMenu={() => setActiveMenu(activeMenu === file.id ? null : file.id)}
                     onRename={() => { onRename(file); setActiveMenu(null); }}
                     onDelete={() => { onDelete(file); setActiveMenu(null); }}
-                    delay={index * 0.05}
+                    delay={index * 0.03}
                 />
             ))}
-        </div>
-    );
-}
-
-function EmptyState() {
-    return (
-        <div className="h-full flex flex-col items-center justify-center text-slate-500 space-y-3">
-            <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center">
-                <File size={24} />
-            </div>
-            <p className="text-sm font-medium">ยังไม่มีไฟล์</p>
         </div>
     );
 }
@@ -99,97 +79,49 @@ interface FileRowProps {
 function FileRow({ file, showMenu, onToggleMenu, onRename, onDelete, delay }: FileRowProps) {
     return (
         <div
-            className="flex items-center gap-3 group cursor-pointer hover:bg-white/5 p-2 rounded-xl transition-all animate-slide-in"
-            style={{ animationDelay: `${delay}s` }}
+            className="flex items-center gap-3 p-2 hover:bg-zinc-800/50 rounded-lg transition-colors animate-slide-in opacity-0"
+            style={{ animationDelay: `${delay}s`, animationFillMode: 'forwards' }}
         >
-            <FileThumbnail file={file} />
-            <FileInfo file={file} />
-            <FileActions
-                file={file}
-                showMenu={showMenu}
-                onToggleMenu={onToggleMenu}
-                onRename={onRename}
-                onDelete={onDelete}
-            />
-        </div>
-    );
-}
-
-function FileThumbnail({ file }: { file: DriveFile }) {
-    return (
-        <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-slate-400 overflow-hidden shrink-0 transition-transform group-hover:scale-105">
-            {file.thumbnailLink ? (
-                <img src={file.thumbnailLink} alt="" className="w-full h-full object-cover" />
-            ) : (
-                <File size={18} />
-            )}
-        </div>
-    );
-}
-
-function FileInfo({ file }: { file: DriveFile }) {
-    return (
-        <div className="flex-1 min-w-0">
-            <p className="font-medium text-white text-sm truncate">{file.name}</p>
-            <p className="text-xs text-slate-500">{formatDate(file.modifiedTime)}</p>
-        </div>
-    );
-}
-
-interface FileActionsProps {
-    file: DriveFile;
-    showMenu: boolean;
-    onToggleMenu: () => void;
-    onRename: () => void;
-    onDelete: () => void;
-}
-
-function FileActions({ file, showMenu, onToggleMenu, onRename, onDelete }: FileActionsProps) {
-    return (
-        <div className="relative">
-            <button onClick={onToggleMenu} className="p-2 text-slate-500 hover:text-white transition-colors">
-                <MoreHorizontal size={16} />
-            </button>
-            {showMenu && (
-                <ActionMenu
-                    file={file}
-                    onRename={onRename}
-                    onDelete={onDelete}
-                />
-            )}
-        </div>
-    );
-}
-
-interface ActionMenuProps {
-    file: DriveFile;
-    onRename: () => void;
-    onDelete: () => void;
-}
-
-function ActionMenu({ file, onRename, onDelete }: ActionMenuProps) {
-    return (
-        <div className="absolute right-0 top-10 w-44 glass rounded-xl py-2 z-20 animate-scale-in border border-white/10">
-            <button
-                onClick={onRename}
-                className="w-full px-4 py-2 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3"
-            >
-                <Edit3 size={14} className="text-primary" /> {BUTTONS.rename}
-            </button>
-            {file.webContentLink && (
-                <a
-                    href={file.webContentLink}
-                    className="w-full px-4 py-2 text-left text-sm text-slate-300 hover:bg-white/5 flex items-center gap-3"
-                >
-                    <Download size={14} className="text-purple-400" /> {BUTTONS.download}
-                </a>
-            )}
-            <button
-                onClick={onDelete}
-                className="w-full px-4 py-2 text-left text-sm text-rose-400 hover:bg-rose-500/10 flex items-center gap-3"
-            >
-                <Trash2 size={14} /> {BUTTONS.delete}
-            </button>
+            <div className="w-8 h-8 bg-zinc-800 rounded-md flex items-center justify-center text-zinc-500 overflow-hidden shrink-0">
+                {file.thumbnailLink ? (
+                    <img src={file.thumbnailLink} alt="" className="w-full h-full object-cover" />
+                ) : (
+                    <File size={14} />
+                )}
+            </div>
+            <div className="flex-1 min-w-0">
+                <p className="text-sm text-white truncate">{file.name}</p>
+                <p className="text-xs text-zinc-500">{formatDate(file.modifiedTime)}</p>
+            </div>
+            <div className="relative">
+                <button onClick={onToggleMenu} className="p-1 text-zinc-500 hover:text-white">
+                    <MoreHorizontal size={14} />
+                </button>
+                {showMenu && (
+                    <div className="absolute right-0 top-7 w-36 bg-zinc-900 border border-zinc-800 rounded-lg py-1 z-20 animate-fade-in">
+                        <button
+                            onClick={onRename}
+                            className="w-full px-3 py-1.5 text-left text-xs text-zinc-300 hover:bg-zinc-800 flex items-center gap-2"
+                        >
+                            <Edit3 size={12} /> {BUTTONS.rename}
+                        </button>
+                        {file.webContentLink && (
+                            <a
+                                href={file.webContentLink}
+                                className="w-full px-3 py-1.5 text-left text-xs text-zinc-300 hover:bg-zinc-800 flex items-center gap-2"
+                            >
+                                <Download size={12} /> {BUTTONS.download}
+                            </a>
+                        )}
+                        <button
+                            onClick={onDelete}
+                            className="w-full px-3 py-1.5 text-left text-xs text-red-400 hover:bg-zinc-800 flex items-center gap-2"
+                        >
+                            <Trash2 size={12} /> {BUTTONS.delete}
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

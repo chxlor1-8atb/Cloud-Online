@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, Upload, Menu } from 'lucide-react';
+import { Search, Upload } from 'lucide-react';
 import { MESSAGES, BUTTONS } from '@/lib/constants';
 
 interface HeaderProps {
@@ -11,7 +11,7 @@ interface HeaderProps {
 
 export function Header({ searchQuery, onSearchChange, onFileSelect }: HeaderProps) {
     return (
-        <header className="px-4 lg:px-8 py-4 lg:py-6 flex items-center justify-between sticky top-0 glass z-10">
+        <header className="px-4 lg:px-6 py-4 flex items-center justify-between border-b border-zinc-800">
             {/* Spacer for mobile menu button */}
             <div className="w-10 lg:hidden" />
 
@@ -28,14 +28,14 @@ interface SearchBarProps {
 
 function SearchBar({ value, onChange }: SearchBarProps) {
     return (
-        <div className="flex-1 max-w-xl relative mx-2 lg:mx-0 group">
-            <Search className="absolute left-3 lg:left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} />
+        <div className="flex-1 max-w-md relative mx-2 lg:mx-0">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
             <input
                 type="text"
                 placeholder={MESSAGES.searchPlaceholder}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full glass-light rounded-xl py-2.5 lg:py-3.5 pl-10 lg:pl-12 pr-4 lg:pr-6 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2 pl-10 pr-4 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-700"
             />
         </div>
     );
@@ -54,12 +54,10 @@ function UploadButton({ onFileSelect }: UploadButtonProps) {
     };
 
     return (
-        <div className="flex items-center gap-4">
-            <label className="upload-btn cursor-pointer text-sm lg:text-base px-4 lg:px-6 py-2 lg:py-2.5">
-                <Upload size={18} />
-                <span className="hidden sm:inline">{BUTTONS.upload}</span>
-                <input type="file" className="hidden" onChange={handleChange} />
-            </label>
-        </div>
+        <label className="btn-primary cursor-pointer flex items-center gap-2 text-sm">
+            <Upload size={16} />
+            <span className="hidden sm:inline">{BUTTONS.upload}</span>
+            <input type="file" className="hidden" onChange={handleChange} />
+        </label>
     );
 }

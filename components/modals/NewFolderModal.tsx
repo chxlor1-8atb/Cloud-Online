@@ -27,24 +27,24 @@ export function NewFolderModal({ onSubmit, onCancel }: NewFolderModalProps) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-[110] flex items-center justify-center p-4">
-            <div className="glass rounded-2xl p-6 lg:p-8 w-full max-w-md shadow-2xl animate-scale-in border border-white/10">
-                <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-xl flex items-center justify-center">
-                        <FolderPlus size={24} className="text-amber-400" />
+        <div className="fixed inset-0 bg-black/80 z-[110] flex items-center justify-center p-4">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 w-full max-w-sm animate-fade-in">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-amber-400/10 rounded-lg flex items-center justify-center">
+                        <FolderPlus size={20} className="text-amber-400" />
                     </div>
-                    <h3 className="text-xl lg:text-2xl font-bold text-white">{MODAL_TITLES.newFolder}</h3>
+                    <h3 className="text-lg font-semibold text-white">{MODAL_TITLES.newFolder}</h3>
                 </div>
 
-                <div className="space-y-2 mb-6">
-                    <label className="text-sm font-medium text-slate-400">{LABELS.folderName}</label>
+                <div className="mb-6">
+                    <label className="text-xs font-medium text-zinc-500 mb-2 block">{LABELS.folderName}</label>
                     <input
                         type="text"
                         value={folderName}
                         onChange={(e) => setFolderName(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder={MESSAGES.folderNamePlaceholder}
-                        className="w-full px-4 py-3.5 glass-light rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all font-medium"
+                        className="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-zinc-600"
                         autoFocus
                     />
                 </div>
@@ -52,14 +52,14 @@ export function NewFolderModal({ onSubmit, onCancel }: NewFolderModalProps) {
                 <div className="flex gap-3">
                     <button
                         onClick={onCancel}
-                        className="flex-1 py-3.5 font-bold text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                        className="flex-1 py-2.5 text-sm font-medium text-zinc-400 hover:text-white border border-zinc-700 rounded-lg hover:bg-zinc-800 transition-colors"
                     >
                         {BUTTONS.cancel}
                     </button>
                     <button
                         onClick={handleSubmit}
                         disabled={!folderName.trim()}
-                        className="flex-1 py-3.5 gradient-primary text-white font-bold rounded-xl shadow-lg shadow-primary/30 transition-all active:scale-95 disabled:opacity-50 hover:shadow-primary/50"
+                        className="flex-1 py-2.5 text-sm font-medium bg-white text-black rounded-lg hover:bg-zinc-200 transition-colors disabled:opacity-50"
                     >
                         {BUTTONS.create}
                     </button>

@@ -131,12 +131,12 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen bg-[#0f172a] bg-pattern">
+    <div className="flex h-screen bg-black">
       {/* Sidebar */}
       <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto gradient-mesh pb-20 lg:pb-0">
+      <main className="flex-1 overflow-y-auto pb-20 lg:pb-0">
         <Header
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
