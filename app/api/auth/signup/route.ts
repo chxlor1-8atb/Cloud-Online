@@ -43,14 +43,16 @@ export async function POST(request: Request) {
         const emailResult = await sendOTPEmail({ to: email, otp, userName: name });
         if (!emailResult.success) {
             console.error('Failed to send email:', emailResult.error);
-            // Continue anyway - OTP is logged to console in demo mode
+            return NextResponse.json(
+                { error: 'ไม่สามารถส่งอีเมลได้ กรุณาลองใหม่อีกครั้ง' },
+                { status: 500 }
+            );
         }
 
         return NextResponse.json({
             success: true,
             message: 'สมัครสมาชิกสำเร็จ! กรุณาตรวจสอบอีเมลเพื่อรับรหัส OTP',
             userId: user.id,
-            debug_otp: process.env.NODE_ENV !== 'production' ? otp : undefined,
         });
     } catch (error) {
         console.error('Signup error:', error);

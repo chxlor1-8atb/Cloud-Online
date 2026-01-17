@@ -40,14 +40,6 @@ export default function LoginPage() {
 
                 // Show OTP modal
                 setShowOTPModal(true);
-
-                // Debug OTP (Development only)
-                if (data.debug_otp) {
-                    console.log('═══════════════════════════════════════');
-                    console.log('🔓 DEV MODE OTP:', data.debug_otp);
-                    console.log('═══════════════════════════════════════');
-                    alert(`[DEV MODE] Your OTP is: ${data.debug_otp}`);
-                }
             } else {
                 // Sign in flow
                 const res = await fetch('/api/auth/send-otp', {
@@ -64,14 +56,6 @@ export default function LoginPage() {
 
                 // Show OTP modal
                 setShowOTPModal(true);
-
-                // Debug OTP (Development only)
-                if (data.debug_otp) {
-                    console.log('═══════════════════════════════════════');
-                    console.log('🔓 DEV MODE OTP:', data.debug_otp);
-                    console.log('═══════════════════════════════════════');
-                    alert(`[DEV MODE] Your OTP is: ${data.debug_otp}`);
-                }
             }
         } catch (err) {
             setError('Something went wrong. Please try again.');
@@ -118,13 +102,10 @@ export default function LoginPage() {
 
             const data = await res.json();
             if (!res.ok) {
-                setOtpError(data.error || 'Failed to resend OTP');
-            } else if (data.debug_otp) {
-                console.log('🔓 DEV MODE OTP (Resend):', data.debug_otp);
-                alert(`[DEV MODE] Your OTP is: ${data.debug_otp}`);
+                setOtpError(data.error || 'ไม่สามารถส่ง OTP ใหม่ได้');
             }
         } catch (err) {
-            setOtpError('Failed to resend OTP. Please try again.');
+            setOtpError('ไม่สามารถส่ง OTP ใหม่ได้ กรุณาลองอีกครั้ง');
         }
     };
 

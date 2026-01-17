@@ -1,9 +1,13 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-// Initialize Resend client lazily inside the function to avoid build errors if API key is missing
-
-// Email sender - use your verified domain or Resend's test domain
-const FROM_EMAIL = process.env.EMAIL_FROM || 'CloudSync <onboarding@resend.dev>';
+// Create Gmail SMTP transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
 
 interface SendOTPEmailParams {
   to: string;
@@ -12,8 +16,8 @@ interface SendOTPEmailParams {
 }
 
 export async function sendOTPEmail({ to, otp, userName }: SendOTPEmailParams): Promise<{ success: boolean; error?: string }> {
-  // If no API key, fall back to console logging (demo mode)
-  if (!process.env.RESEND_API_KEY) {
+  // Check if Gmail credentials are configured
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     console.log('═══════════════════════════════════════');
     console.log('📧 [DEMO MODE] OTP for', to);
     console.log('🔐 Code:', otp);
@@ -23,10 +27,9 @@ export async function sendOTPEmail({ to, otp, userName }: SendOTPEmailParams): P
   }
 
   try {
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: [to],
+    const mailOptions = {
+      from: `CloudSync <${process.env.GMAIL_USER}>`,
+      to: to,
       subject: '🔐 รหัสยืนยันตัวตน CloudSync ของคุณ',
       html: `
         <!DOCTYPE html>
@@ -73,29 +76,13 @@ export async function sendOTPEmail({ to, otp, userName }: SendOTPEmailParams): P
         </body>
         </html>
       `,
-    });
+    };
 
-    if (error) {
-      console.error('Resend error:', error);
-      // Fallback: Log to console so user can still login
-      console.log('═══════════════════════════════════════');
-      console.log('⚠️ Email failed, using fallback logging');
-      console.log('📧 OTP for', to);
-      console.log('🔐 Code:', otp);
-      console.log('═══════════════════════════════════════');
-      return { success: false, error: error.message };
-    }
-
-    console.log('✅ Email sent successfully! ID:', data?.id);
+    const info = await transporter.sendMail(mailOptions);
+    console.log('✅ Email sent successfully! ID:', info.messageId);
     return { success: true };
-  } catch (err) {
+  } catch (err: any) {
     console.error('Email send error:', err);
-    // Fallback: Log to console so user can still login
-    console.log('═══════════════════════════════════════');
-    console.log('⚠️ Email failed, using fallback logging');
-    console.log('📧 OTP for', to);
-    console.log('🔐 Code:', otp);
-    console.log('═══════════════════════════════════════');
-    return { success: false, error: 'Failed to send email' };
+    return { success: false, error: err.message || 'Failed to send email' };
   }
 }
