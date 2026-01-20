@@ -17,327 +17,123 @@
 
 ---
 
-## 2️⃣ Breakpoints (จุดพักหน้าจอ)
+## 2️⃣ Breakpoints & Device Support (2025 Standards)
 
-### 2.1 มาตรฐาน Breakpoints
+### 2.1 Granular Breakpoints
 
-| Breakpoint | ขนาดหน้าจอ | อุปกรณ์เป้าหมาย |
-|------------|------------|-------------------|
-| `xs` | < 375px | Mobile เล็ก |
-| `sm` | 375px - 639px | Mobile ทั่วไป |
-| `md` | 640px - 767px | Mobile แนวนอน / Tablet เล็ก |
-| `lg` | 768px - 1023px | Tablet |
-| `xl` | 1024px - 1279px | Laptop / Desktop เล็ก |
-| `2xl` | ≥ 1280px | Desktop ใหญ่ |
+| Prefix | Range | Device Coverage |
+|--------|-------|-----------------|
+| `xs` | < 480px | Mobile Portrait (iPhone SE, Small Androids) |
+| `sm` | 480px - 639px | Large Mobile / Foldable (Folded) |
+| `md` | 640px - 767px | Tablet Portrait / Large Foldables |
+| `lg` | 768px - 1023px | Tablet Landscape / Small Laptops |
+| `xl` | 1024px - 1279px | Laptops / Desktops |
+| `2xl` | 1280px - 1535px | High-Res Monitors |
+| `3xl` | ≥ 1536px | Ultra Wide / 4K Screens |
 
-### 2.2 Tailwind CSS Breakpoints (ที่ใช้ในโปรเจค)
+### 2.2 Device Specific Support
 
-```css
-/* Tailwind Default Breakpoints */
-sm: 640px   /* min-width: 640px */
-md: 768px   /* min-width: 768px */
-lg: 1024px  /* min-width: 1024px */
-xl: 1280px  /* min-width: 1280px */
-2xl: 1536px /* min-width: 1536px */
-```
+#### 📱 iOS & Android Devices
+- **Safe Area**: Must handle Notch, Dynamic Island, and Home Indicator.
+- **Touch Targets**: Minimum **44x44px** (iOS) / **48x48px** (Android).
+- **System Fonts**: Use SF Pro (iOS) and Roboto/Product Sans (Android).
+- **Haptics**: Support native vibration feedback where possible.
+
+#### 📟 Foldable Devices (Samsung Z Fold, Pixel Fold)
+- **Compact View**: ใช้ Layout แบบ Mobile เมื่อพับจอ (< 600px)
+- **Unfolded View**: เปลี่ยนเป็น Tablet Layout เมื่อกางจอ (> 600px)
+- **Hinge Awareness**: เลี่ยงการวาง Content สำคัญตรงกลางรอยพับ
 
 ---
 
-## 3️⃣ CSS Media Queries
+## 3️⃣ Advanced CSS Media Queries
 
-### 3.1 Media Queries สำหรับ Mobile-First
+### 3.1 Extended Theme Implementation
 
 ```css
 /* ============================================
-   RESPONSIVE DESIGN - MEDIA QUERIES
+   2025 RESPONSIVE STANDARDS
    ============================================ */
 
-/* ===========================================
-   BASE (Mobile First - < 640px)
-   =========================================== */
-/* สไตล์พื้นฐานสำหรับ Mobile */
-
-/* ===========================================
-   SMALL DEVICES (≥ 640px)
-   =========================================== */
-@media screen and (min-width: 640px) {
-    /* Tablet เล็ก / Mobile แนวนอน */
+/* 1. XS - Extra Small Devices (< 480px) */
+@media screen and (max-width: 479px) {
+    .container { padding-inline: 16px; }
+    h1 { font-size: 1.5rem; }
 }
 
-/* ===========================================
-   MEDIUM DEVICES (≥ 768px)
-   =========================================== */
-@media screen and (min-width: 768px) {
-    /* Tablet */
+/* 2. Foldable & Landscape Mobile (480px - 639px) */
+@media screen and (min-width: 480px) and (max-width: 639px) {
+    .grid-view { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* ===========================================
-   LARGE DEVICES (≥ 1024px)
-   =========================================== */
-@media screen and (min-width: 1024px) {
-    /* Laptop / Desktop เล็ก */
+/* 3. Tablet Portrait (640px - 767px) */
+@media screen and (min-width: 640px) and (max-width: 767px) {
+    .sidebar { transform: translateX(-100%); } /* Hidden by default */
 }
 
-/* ===========================================
-   EXTRA LARGE DEVICES (≥ 1280px)
-   =========================================== */
-@media screen and (min-width: 1280px) {
-    /* Desktop ใหญ่ */
+/* 4. Safe Area Handling (Notch/Dynamic Island) */
+.safe-area-padding {
+    padding-top: env(safe-area-inset-top, 20px);
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
 }
 
-/* ===========================================
-   2X LARGE DEVICES (≥ 1536px)
-   =========================================== */
-@media screen and (min-width: 1536px) {
-    /* Desktop จอใหญ่มาก */
+/* 5. Dynamic Viewport Units (For Mobile Browsers) */
+.full-height {
+    height: 100vh; /* Fallback */
+    height: 100dvh; /* Dynamic CSS Viewport Height */
 }
 ```
 
-### 3.2 Media Queries สำหรับ Desktop-First
+### 3.2 Feature Queries (Modern Capability Detection)
 
 ```css
-/* ===========================================
-   DESKTOP FIRST APPROACH
-   =========================================== */
-
-/* Base styles for desktop */
-
-/* Tablet and below */
-@media screen and (max-width: 1023px) {
-    /* Tablet และเล็กกว่า */
+/* Pointer Coarse (Touch Devices) */
+@media (pointer: coarse) {
+    .btn { min-height: 48px; } /* Larger touch targets */
+    .hover-effect { display: none; } /* Disable hover on touch */
 }
 
-/* Mobile only */
-@media screen and (max-width: 767px) {
-    /* Mobile เท่านั้น */
-}
-
-/* Small mobile */
-@media screen and (max-width: 639px) {
-    /* Mobile เล็ก */
+/* Dark Mode Preference */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: #0f172a;
+        --text-primary: #f8fafc;
+    }
 }
 ```
 
 ---
 
-## 4️⃣ Layout Specifications
+## 4️⃣ Component Responsive Specs
 
-### 4.1 Sidebar Component
+### 4.1 Layout Components
 
-| หน้าจอ | พฤติกรรม |
-|--------|----------|
-| **Desktop** (≥1024px) | แสดง Sidebar แบบ Fixed ด้านซ้าย กว้าง 288px |
-| **Tablet/Mobile** (<1024px) | ซ่อน Sidebar, แสดง Hamburger Menu + Bottom Navigation |
+| Component | Default (Mobile) | Foldable (Unfolded) | Tablet | Desktop |
+|-----------|------------------|---------------------|--------|---------|
+| **Sidebar** | Drawer (Hidden) | Drawer (Hidden) | Drawer (Hidden) | Fixed (Visible) |
+| **Grid Cols** | 1-2 Columns | 2-3 Columns | 3-4 Columns | 4-6 Columns |
+| **Nav Type** | Bottom Bar | Bottom Bar | Rail / Bottom | Full Sidebar |
 
-```css
-/* Sidebar Responsive */
-@media screen and (max-width: 1023px) {
-    .sidebar-desktop {
-        display: none;
-    }
-    
-    .sidebar-mobile {
-        position: fixed;
-        left: 0;
-        top: 0;
-        width: 288px;
-        height: 100%;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-        z-index: 50;
-    }
-    
-    .sidebar-mobile.open {
-        transform: translateX(0);
-    }
-    
-    .mobile-menu-button {
-        display: flex;
-    }
-    
-    .bottom-navigation {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 64px;
-        background: white;
-        border-top: 1px solid #e2e8f0;
-    }
-}
+### 4.2 Spacing & Typography Scale
 
-@media screen and (min-width: 1024px) {
-    .sidebar-desktop {
-        display: flex;
-    }
-    
-    .mobile-menu-button,
-    .bottom-navigation {
-        display: none;
-    }
-}
-```
+| Scale | XS (<480) | SM-MD (480-768) | LG-XL (>768) |
+|-------|-----------|-----------------|--------------|
+| **Base Text** | 14px | 15px | 16px |
+| **Heading 1** | 24px | 32px | 40px+ |
+| **Container Padding** | 16px | 24px | 32px-48px |
+| **Card Gap** | 12px | 16px | 24px |
 
-### 4.2 Header Component
+---
 
-| หน้าจอ | พฤติกรรม |
-|--------|----------|
-| **Desktop** (≥1024px) | Padding: 32px, Search bar เต็มขนาด |
-| **Mobile** (<1024px) | Padding: 16px, Search bar ปรับขนาด, ปุ่ม Upload แสดงแค่ไอคอน |
+## 5️⃣ Testing Strategy (Mobile First)
 
-```css
-/* Header Responsive */
-.header {
-    padding: 16px;
-}
-
-@media screen and (min-width: 1024px) {
-    .header {
-        padding: 24px 32px;
-    }
-}
-
-/* Search Bar */
-.search-input {
-    padding: 10px 40px;
-    font-size: 14px;
-}
-
-@media screen and (min-width: 1024px) {
-    .search-input {
-        padding: 14px 48px;
-        font-size: 16px;
-    }
-}
-
-/* Upload Button */
-.upload-btn-text {
-    display: none;
-}
-
-@media screen and (min-width: 640px) {
-    .upload-btn-text {
-        display: inline;
-    }
-}
-```
-
-### 4.3 Storage Card Component
-
-| หน้าจอ | พฤติกรรม |
-|--------|----------|
-| **Desktop** (≥1024px) | ขนาดใหญ่, Circular Progress 128px |
-| **Mobile** (<1024px) | ขนาดเล็กลง, Circular Progress 80px |
-
-```css
-/* Storage Card Responsive */
-.storage-card {
-    padding: 20px;
-    border-radius: 16px;
-}
-
-.circular-progress {
-    width: 80px;
-    height: 80px;
-}
-
-.storage-text-main {
-    font-size: 24px;
-}
-
-.storage-text-sub {
-    font-size: 16px;
-}
-
-@media screen and (min-width: 1024px) {
-    .storage-card {
-        padding: 32px;
-        border-radius: 24px;
-    }
-    
-    .circular-progress {
-        width: 128px;
-        height: 128px;
-    }
-    
-    .storage-text-main {
-        font-size: 36px;
-    }
-    
-    .storage-text-sub {
-        font-size: 20px;
-    }
-}
-```
-
-### 4.4 Category Grid
-
-| หน้าจอ | จำนวนคอลัมน์ |
-|--------|-------------|
-| **Mobile** (<640px) | 2 คอลัมน์ |
-| **Tablet** (640px-1023px) | 3 คอลัมน์ |
-| **Desktop** (≥1024px) | 4 คอลัมน์ |
-
-```css
-/* Category Grid Responsive */
-.category-grid {
-    display: grid;
-    gap: 12px;
-    grid-template-columns: repeat(2, 1fr);
-}
-
-@media screen and (min-width: 640px) {
-    .category-grid {
-        gap: 16px;
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media screen and (min-width: 1024px) {
-    .category-grid {
-        gap: 24px;
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
-```
-
-### 4.5 File List/Grid View
-
-| หน้าจอ | พฤติกรรม |
-|--------|----------|
-| **Mobile** (<768px) | List view เป็นค่าเริ่มต้น |
-| **Desktop** (≥768px) | สลับระหว่าง List/Grid view ได้ |
-
-```css
-/* File Grid Responsive */
-.file-grid {
-    display: grid;
-    gap: 12px;
-    grid-template-columns: repeat(2, 1fr);
-}
-
-@media screen and (min-width: 640px) {
-    .file-grid {
-        gap: 16px;
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media screen and (min-width: 1024px) {
-    .file-grid {
-        gap: 20px;
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
-
-@media screen and (min-width: 1280px) {
-    .file-grid {
-        grid-template-columns: repeat(5, 1fr);
-    }
-}
-```
+1.  **Smallest Mobile (320px - 375px)**: iPhone SE, older Androids
+2.  **Standard Mobile (390px - 430px)**: iPhone 14/15/16, Pixel, Galaxy S
+3.  **Foldable / Large Mobile (480px - 600px)**: Z Fold (Cover), Phablets
+4.  **Tablet Portrait (768px)**: iPad Mini, iPad Air
+5.  **Desktop**: 1280px+
 
 ---
 

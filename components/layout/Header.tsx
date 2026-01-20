@@ -11,7 +11,7 @@ interface HeaderProps {
 
 export function Header({ searchQuery, onSearchChange, onFileSelect }: HeaderProps) {
     return (
-        <header className="px-4 lg:px-6 py-4 flex items-center justify-between border-b border-zinc-800">
+        <header className="px-4 lg:px-6 py-4 flex items-center justify-between border-b border-zinc-800 safe-area-top">
             {/* Spacer for mobile menu button */}
             <div className="w-10 lg:hidden" />
 

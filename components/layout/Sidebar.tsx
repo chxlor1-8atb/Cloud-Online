@@ -107,7 +107,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
         <>
             {/* Mobile Menu Button */}
             <button
-                className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-zinc-900 border border-zinc-800 rounded-lg"
+                className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-zinc-900 border border-zinc-800 rounded-lg safe-area-top safe-area-left mt-2 ml-2"
                 onClick={() => setIsMobileOpen(!isMobileOpen)}
             >
                 {isMobileOpen ? <X size={20} className="text-white" /> : <Menu size={20} className="text-white" />}
@@ -129,7 +129,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             {/* Mobile Sidebar */}
             <aside
                 className={cn(
-                    "fixed left-0 top-0 h-full w-64 bg-black border-r border-zinc-800 z-50 flex flex-col p-4 pt-16 transition-transform duration-200 lg:hidden",
+                    "fixed left-0 top-0 h-full w-64 bg-black border-r border-zinc-800 z-50 flex flex-col p-4 pt-16 transition-transform duration-200 lg:hidden safe-area-left",
                     isMobileOpen ? "translate-x-0" : "-translate-x-full"
                 )}
             >
