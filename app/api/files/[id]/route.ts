@@ -24,11 +24,6 @@ export async function DELETE(
 ) {
     try {
         const accessToken = await getServiceAccountAccessToken();
-        if (!accessToken) {
-            return NextResponse.json({
-                error: 'Service Account ยังไม่ได้ตั้งค่า'
-            }, { status: 500 });
-        }
 
         const { id } = await params;
         const userId = await getCurrentUserId();
@@ -98,11 +93,6 @@ export async function PATCH(
 ) {
     try {
         const accessToken = await getServiceAccountAccessToken();
-        if (!accessToken) {
-            return NextResponse.json({
-                error: 'Service Account ยังไม่ได้ตั้งค่า'
-            }, { status: 500 });
-        }
 
         const { id } = await params;
         const body = await req.json();

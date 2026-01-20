@@ -24,12 +24,12 @@ export async function getServiceAccountDrive() {
 /**
  * ดึง access token จาก Service Account
  */
-export async function getServiceAccountAccessToken(): Promise<string | null> {
+export async function getServiceAccountAccessToken(): Promise<string> {
     const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
     const privateKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY;
 
     if (!clientEmail || !privateKey) {
-        return null;
+        throw new Error('Missing Service Account Credentials (GOOGLE_SERVICE_ACCOUNT_EMAIL or GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)');
     }
 
     try {
@@ -40,10 +40,13 @@ export async function getServiceAccountAccessToken(): Promise<string | null> {
         });
 
         const token = await auth.getAccessToken();
-        return token.token || null;
-    } catch (error) {
+        if (!token.token) {
+            throw new Error('Failed to retrieve access token from Google');
+        }
+        return token.token;
+    } catch (error: any) {
         console.error('Service Account Auth Error:', error);
-        return null;
+        throw new Error(`Service Account Authentication Failed: ${error.message}`);
     }
 }
 

@@ -5,11 +5,6 @@ import { getServiceAccountAccessToken, getDefaultFolderId } from '../../../lib/g
 export async function GET(req: NextRequest) {
     try {
         const accessToken = await getServiceAccountAccessToken();
-        if (!accessToken) {
-            return NextResponse.json({
-                error: 'Service Account ยังไม่ได้ตั้งค่า กรุณาตั้งค่า environment variables'
-            }, { status: 500 });
-        }
 
         const { searchParams } = new URL(req.url);
         const defaultFolderId = getDefaultFolderId();

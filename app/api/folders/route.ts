@@ -5,11 +5,6 @@ import { getServiceAccountAccessToken, getDefaultFolderId } from '../../../lib/g
 export async function POST(req: NextRequest) {
     try {
         const accessToken = await getServiceAccountAccessToken();
-        if (!accessToken) {
-            return NextResponse.json({
-                error: 'Service Account ยังไม่ได้ตั้งค่า'
-            }, { status: 500 });
-        }
 
         const body = await req.json();
         const { name, parentId } = body;

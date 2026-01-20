@@ -39,11 +39,6 @@ export async function POST() {
 
         // Get access token
         const accessToken = await getServiceAccountAccessToken();
-        if (!accessToken) {
-            return NextResponse.json({
-                error: 'Service Account ยังไม่ได้ตั้งค่า'
-            }, { status: 500 });
-        }
 
         // Get all files from Google Drive and calculate total size
         const defaultFolderId = getDefaultFolderId();

@@ -20,11 +20,6 @@ async function getCurrentUserId(): Promise<string | null> {
 export async function POST(req: NextRequest) {
     try {
         const accessToken = await getServiceAccountAccessToken();
-        if (!accessToken) {
-            return NextResponse.json({
-                error: 'Service Account ยังไม่ได้ตั้งค่า กรุณาตั้งค่า environment variables'
-            }, { status: 500 });
-        }
 
         const formData = await req.formData();
         const file = formData.get('file') as File;
