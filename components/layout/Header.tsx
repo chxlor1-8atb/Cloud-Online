@@ -1,7 +1,7 @@
 'use client';
 
-import { Search, Upload } from 'lucide-react';
-import { MESSAGES, BUTTONS } from '@/lib/constants';
+import { Search, Bell, User } from 'lucide-react';
+import { MESSAGES } from '@/lib/constants';
 
 interface HeaderProps {
     searchQuery: string;
@@ -11,53 +11,36 @@ interface HeaderProps {
 
 export function Header({ searchQuery, onSearchChange, onFileSelect }: HeaderProps) {
     return (
-        <header className="px-4 lg:px-6 py-4 flex items-center justify-between border-b border-zinc-800 safe-area-top">
+        <header className="px-4 lg:px-8 py-4 flex items-center justify-between gap-4 safe-area-top">
             {/* Spacer for mobile menu button */}
             <div className="w-10 lg:hidden" />
 
-            <SearchBar value={searchQuery} onChange={onSearchChange} />
-            <UploadButton onFileSelect={onFileSelect} />
+            {/* Search Bar */}
+            <div className="flex-1 max-w-2xl">
+                <div className="search-input">
+                    <Search size={18} />
+                    <input
+                        type="text"
+                        placeholder={MESSAGES.searchPlaceholder}
+                        value={searchQuery}
+                        onChange={(e) => onSearchChange(e.target.value)}
+                    />
+                </div>
+            </div>
+
+            {/* Right Actions */}
+            <div className="flex items-center gap-2">
+                {/* Notifications */}
+                <button className="btn-icon btn-ghost relative">
+                    <Bell size={20} />
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-indigo-500 rounded-full"></span>
+                </button>
+
+                {/* User Avatar */}
+                <button className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm shadow-lg hover:scale-105 transition-transform">
+                    <User size={18} />
+                </button>
+            </div>
         </header>
-    );
-}
-
-interface SearchBarProps {
-    value: string;
-    onChange: (value: string) => void;
-}
-
-function SearchBar({ value, onChange }: SearchBarProps) {
-    return (
-        <div className="flex-1 max-w-md relative mx-2 lg:mx-0">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
-            <input
-                type="text"
-                placeholder={MESSAGES.searchPlaceholder}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2 pl-10 pr-4 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-700"
-            />
-        </div>
-    );
-}
-
-interface UploadButtonProps {
-    onFileSelect: (file: File) => void;
-}
-
-function UploadButton({ onFileSelect }: UploadButtonProps) {
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            onFileSelect(file);
-        }
-    };
-
-    return (
-        <label className="btn-primary cursor-pointer flex items-center gap-2 text-sm">
-            <Upload size={16} />
-            <span className="hidden sm:inline">{BUTTONS.upload}</span>
-            <input type="file" className="hidden" onChange={handleChange} />
-        </label>
     );
 }

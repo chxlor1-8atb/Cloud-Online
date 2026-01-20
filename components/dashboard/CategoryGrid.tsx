@@ -1,6 +1,6 @@
 'use client';
 
-import { FileText, Image as ImageIcon, Video, MoreHorizontal, ArrowUpRight } from 'lucide-react';
+import { FileText, Image as ImageIcon, Film, MoreHorizontal, ChevronRight } from 'lucide-react';
 import type { TabType, FileStats } from '@/lib/types';
 import { formatSize, cn } from '@/lib/utils';
 
@@ -10,34 +10,61 @@ interface CategoryGridProps {
 }
 
 const CATEGORIES = [
-    { id: 'documents' as TabType, label: 'เอกสาร', icon: FileText, color: 'text-rose-400', bgColor: 'bg-rose-400/10' },
-    { id: 'images' as TabType, label: 'รูปภาพ', icon: ImageIcon, color: 'text-blue-400', bgColor: 'bg-blue-400/10' },
-    { id: 'media' as TabType, label: 'มีเดีย', icon: Video, color: 'text-green-400', bgColor: 'bg-green-400/10' },
-    { id: 'others' as TabType, label: 'อื่นๆ', icon: MoreHorizontal, color: 'text-purple-400', bgColor: 'bg-purple-400/10' },
+    {
+        id: 'documents' as TabType,
+        label: 'เอกสาร',
+        icon: FileText,
+        gradient: 'from-rose-500 to-pink-600',
+        bgGradient: 'from-rose-500/20 to-pink-600/10',
+    },
+    {
+        id: 'images' as TabType,
+        label: 'รูปภาพ',
+        icon: ImageIcon,
+        gradient: 'from-cyan-500 to-blue-600',
+        bgGradient: 'from-cyan-500/20 to-blue-600/10',
+    },
+    {
+        id: 'media' as TabType,
+        label: 'มีเดีย',
+        icon: Film,
+        gradient: 'from-violet-500 to-purple-600',
+        bgGradient: 'from-violet-500/20 to-purple-600/10',
+    },
+    {
+        id: 'others' as TabType,
+        label: 'อื่นๆ',
+        icon: MoreHorizontal,
+        gradient: 'from-amber-500 to-orange-600',
+        bgGradient: 'from-amber-500/20 to-orange-600/10',
+    },
 ];
 
 export function CategoryGrid({ stats, onCategoryClick }: CategoryGridProps) {
-    const getCategorySize = (id: TabType): number => {
+    const getCategoryData = (id: TabType): { size: number; count: number } => {
         switch (id) {
-            case 'documents': return stats.documents;
-            case 'images': return stats.images;
-            case 'media': return stats.media;
-            case 'others': return Math.max(0, stats.total - (stats.documents + stats.images + stats.media));
-            default: return 0;
+            case 'documents': return { size: stats.documents, count: 0 };
+            case 'images': return { size: stats.images, count: 0 };
+            case 'media': return { size: stats.media, count: 0 };
+            case 'others': return { size: Math.max(0, stats.total - (stats.documents + stats.images + stats.media)), count: 0 };
+            default: return { size: 0, count: 0 };
         }
     };
 
     return (
-        <div className="grid grid-cols-2 gap-3 lg:gap-4">
-            {CATEGORIES.map((category, index) => (
-                <CategoryCard
-                    key={category.id}
-                    {...category}
-                    size={getCategorySize(category.id)}
-                    onClick={() => onCategoryClick(category.id)}
-                    delay={index * 0.05}
-                />
-            ))}
+        <div className="grid grid-cols-2 gap-4">
+            {CATEGORIES.map((category, index) => {
+                const data = getCategoryData(category.id);
+                return (
+                    <CategoryCard
+                        key={category.id}
+                        {...category}
+                        size={data.size}
+                        onClick={() => onCategoryClick(category.id)}
+                        delay={index * 0.08}
+                    />
+                );
+            })}
         </div>
     );
 }
@@ -46,30 +73,44 @@ interface CategoryCardProps {
     id: TabType;
     label: string;
     icon: React.ComponentType<{ size?: number; className?: string }>;
-    color: string;
-    bgColor: string;
+    gradient: string;
+    bgGradient: string;
     size: number;
     onClick: () => void;
     delay: number;
 }
 
-function CategoryCard({ label, icon: Icon, color, bgColor, size, onClick, delay }: CategoryCardProps) {
+function CategoryCard({ id, label, icon: Icon, gradient, bgGradient, size, onClick, delay }: CategoryCardProps) {
     return (
-        <div
+        <button
             onClick={onClick}
-            className="card-interactive p-4 lg:p-5 flex flex-col gap-3 animate-slide-up opacity-0"
+            className={cn(
+                "category-card text-left group animate-slide-up opacity-0",
+                id === 'documents' && 'documents',
+                id === 'images' && 'images',
+                id === 'media' && 'media',
+                id === 'others' && 'others',
+            )}
             style={{ animationDelay: `${delay}s`, animationFillMode: 'forwards' }}
         >
-            <div className="flex items-start justify-between">
-                <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", bgColor)}>
-                    <Icon size={20} className={color} />
+            {/* Icon */}
+            <div className={cn(
+                "w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-gradient-to-br",
+                bgGradient
+            )}>
+                <Icon size={24} className="text-white" />
+            </div>
+
+            {/* Content */}
+            <div className="flex items-end justify-between">
+                <div>
+                    <h4 className="text-base font-semibold text-white mb-1">{label}</h4>
+                    <p className="text-sm text-zinc-500">{formatSize(size)}</p>
                 </div>
-                <ArrowUpRight size={16} className="text-zinc-600" />
+                <div className="w-8 h-8 rounded-lg bg-zinc-800/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ChevronRight size={16} className="text-zinc-400" />
+                </div>
             </div>
-            <div>
-                <h4 className="text-sm font-semibold text-white mb-1">{label}</h4>
-                <p className="text-xs text-zinc-500">{formatSize(size)}</p>
-            </div>
-        </div>
+        </button>
     );
 }

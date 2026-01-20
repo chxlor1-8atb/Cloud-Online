@@ -81,7 +81,7 @@ export default function Home() {
       }
     };
     fetchStorageQuota();
-  }, [files]); // Refetch when files change (after upload)
+  }, [files]);
 
   // Load files on mount and folder change
   useEffect(() => {
@@ -130,10 +130,25 @@ export default function Home() {
     setRenameItem(file);
   };
 
+  // Hidden file input ref for upload
+  const handleUploadClick = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) selectFile(file);
+    };
+    input.click();
+  };
+
   return (
-    <div className="flex h-screen bg-black">
+    <div className="flex h-screen bg-[var(--bg-primary)]">
       {/* Sidebar */}
-      <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        onUploadClick={handleUploadClick}
+      />
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto pb-20 lg:pb-0">
@@ -143,7 +158,7 @@ export default function Home() {
           onFileSelect={selectFile}
         />
 
-        <div className="px-4 lg:px-8 pb-6 lg:pb-12 animate-fade-in">
+        <div className="px-4 lg:px-8 py-6 animate-fade-in">
           {activeTab === 'dashboard' ? (
             <DashboardView
               stats={stats}
@@ -220,24 +235,40 @@ interface DashboardViewProps {
 
 function DashboardView({ stats, files, loading, storageQuota, onCategoryClick, onRefresh, onRename, onDelete }: DashboardViewProps) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
-      <div className="lg:col-span-2 space-y-4 lg:space-y-8">
-        <StorageCard
-          usedBytes={storageQuota.usedBytes}
-          quotaBytes={storageQuota.quotaBytes}
-          quotaGB={storageQuota.quotaGB}
-        />
-        <CategoryGrid stats={stats} onCategoryClick={onCategoryClick} />
+    <div className="space-y-6">
+      {/* Welcome Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">
+          ยินดีต้อนรับ 👋
+        </h1>
+        <p className="text-zinc-500">จัดการไฟล์และโฟลเดอร์ของคุณได้ที่นี่</p>
       </div>
-      {/* Hidden on mobile, shown on tablet and up */}
-      <div className="hidden lg:block">
-        <RecentFiles
-          files={files}
-          loading={loading}
-          onRefresh={onRefresh}
-          onRename={onRename}
-          onDelete={onDelete}
-        />
+
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Storage & Categories */}
+        <div className="lg:col-span-2 space-y-6">
+          <StorageCard
+            usedBytes={storageQuota.usedBytes}
+            quotaBytes={storageQuota.quotaBytes}
+            quotaGB={storageQuota.quotaGB}
+          />
+          <div>
+            <h2 className="text-lg font-semibold text-white mb-4">หมวดหมู่</h2>
+            <CategoryGrid stats={stats} onCategoryClick={onCategoryClick} />
+          </div>
+        </div>
+
+        {/* Right Column - Recent Files */}
+        <div className="lg:col-span-1">
+          <RecentFiles
+            files={files}
+            loading={loading}
+            onRefresh={onRefresh}
+            onRename={onRename}
+            onDelete={onDelete}
+          />
+        </div>
       </div>
     </div>
   );
@@ -277,17 +308,19 @@ function FilesView({
   };
 
   return (
-    <div className="space-y-4 lg:space-y-6">
+    <div className="space-y-6">
+      {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl lg:text-3xl font-bold text-slate-800 mb-1 lg:mb-2">{tabLabels[activeTab]}</h2>
-          <p className="text-sm lg:text-base text-slate-500 font-medium">
+          <h1 className="text-2xl lg:text-3xl font-bold text-white mb-1">{tabLabels[activeTab]}</h1>
+          <p className="text-zinc-500">
             {LABELS.total}: {files.length} {LABELS.items}
           </p>
         </div>
         <NewFolderButton onClick={onNewFolder} />
       </div>
 
+      {/* Breadcrumbs */}
       <Breadcrumbs
         items={breadcrumbs}
         loading={loading}
@@ -296,6 +329,7 @@ function FilesView({
         onNewFolder={onNewFolder}
       />
 
+      {/* File Grid */}
       <FileGrid
         files={files}
         loading={loading}
